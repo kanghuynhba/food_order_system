@@ -1,6 +1,7 @@
 package com.hbk.food_order_system.factory;
 
 import com.hbk.food_order_system.entity.Product;
+import com.hbk.food_order_system.builder.ProductBuilder;
 
 public interface ProductFactory {
    Product newProduct(
@@ -9,5 +10,5 @@ public interface ProductFactory {
             String image, 
             int price, 
             boolean isAvailable);
-
+   ProductBuilder newProductBuilder();
 }

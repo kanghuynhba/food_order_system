@@ -2,8 +2,8 @@ package com.hbk.food_order_system.ui;
 
 import com.hbk.food_order_system.entity.Product;
 // import com.hbk.food_order_system.service.CartService;
-// import com.hbk.food_order_system.service.ProductService;
-// import com.hbk.food_order_system.ui.component.ProductCard;
+import com.hbk.food_order_system.service.ProductService;
+import com.hbk.food_order_system.ui.component.ProductCard;
 import com.hbk.food_order_system.util.Constants;
 import com.hbk.food_order_system.util.UIFactory;
 
@@ -13,11 +13,12 @@ import java.awt.*;
 
 public class MenuPanel extends JPanel {
     private JPanel menuItemsPanel;
+    private final ProductService productService;
 
      // public MenuPanel(CartService cartService) {
      public MenuPanel() {
         // this.cartService = cartService;
-        // this.productService = new ProductService();
+        this.productService = new ProductService();
         initComponents();
     }
 
@@ -56,12 +57,12 @@ public class MenuPanel extends JPanel {
     }
 
     private JPanel createMenuItemsPanel() {
-        JPanel panel = new JPanel(new GridLayout(0, 3, 24, 24));
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 24));
         panel.setOpaque(false);
         
-        // for (Product product : productService.getAvailableProducts()) {
-        //     panel.add(new ProductCard(product, this::addToCart));
-        // }
+        for (Product product : productService.getAvailableProducts()) {
+            panel.add(new ProductCard(product, this::addToCart));
+        }
         
         return panel;
     }
