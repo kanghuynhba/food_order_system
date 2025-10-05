@@ -21,8 +21,8 @@ public class CustomerView extends JFrame {
         setLayout(new BorderLayout()); 
 
         // add(new SidebarPanel(), BorderLayout.WEST);
-        add(new MenuPanel(cartService), BorderLayout.CENTER);
-        add(new CartPanel(cartService), BorderLayout.EAST);
+        add(new MenuPanel(), BorderLayout.CENTER);
+        // add(new CartPanel(cartService), BorderLayout.EAST);
         
         setLocationRelativeTo(null);
     }

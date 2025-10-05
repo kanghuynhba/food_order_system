@@ -8,4 +8,12 @@ public class Product {
     String name, description, image;
     int price;
     boolean isAvailable;
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable=isAvailable;
+    }
+
+    public boolean getIsAvailable() {
+        return this.isAvailable;
+    }
 }
