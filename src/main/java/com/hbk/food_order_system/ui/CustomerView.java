@@ -1,16 +1,16 @@
 package com.hbk.food_order_system.ui;
 
-// import com.hbk.food_order_system.service.CartService;
+import com.hbk.food_order_system.service.CartService;
 import com.hbk.food_order_system.util.Constants;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CustomerView extends JFrame {
-    // private final CartService cartService;
+    private final CartService cartService;
 
     public CustomerView() {
-        // this.cartService=new CartService();
+        this.cartService=new CartService();
         initComponents();
     }
 
@@ -21,8 +21,8 @@ public class CustomerView extends JFrame {
         setLayout(new BorderLayout()); 
 
         // add(new SidebarPanel(), BorderLayout.WEST);
-        add(new MenuPanel(), BorderLayout.CENTER);
-        // add(new CartPanel(cartService), BorderLayout.EAST);
+        add(new MenuPanel(cartService), BorderLayout.CENTER);
+        add(new CartPanel(cartService), BorderLayout.EAST);
         
         setLocationRelativeTo(null);
     }

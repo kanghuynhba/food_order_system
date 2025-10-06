@@ -1,4 +1,4 @@
-package com.hbk.food_order_system.ui.component;
+package com.hbk.food_order_system.ui.components;
 
 import com.hbk.food_order_system.entity.Product;
 import com.hbk.food_order_system.util.Constants;
