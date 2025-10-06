@@ -1,9 +1,9 @@
 package com.hbk.food_order_system.ui;
 
 import com.hbk.food_order_system.entity.Product;
-// import com.hbk.food_order_system.service.CartService;
+import com.hbk.food_order_system.service.CartService;
 import com.hbk.food_order_system.service.ProductService;
-import com.hbk.food_order_system.ui.component.ProductCard;
+import com.hbk.food_order_system.ui.components.ProductCard;
 import com.hbk.food_order_system.util.Constants;
 import com.hbk.food_order_system.util.UIFactory;
 
@@ -12,12 +12,12 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class MenuPanel extends JPanel {
+    private final CartService cartService;
     private JPanel menuItemsPanel;
     private final ProductService productService;
 
-     // public MenuPanel(CartService cartService) {
-     public MenuPanel() {
-        // this.cartService = cartService;
+     public MenuPanel(CartService cartService) {
+        this.cartService = cartService;
         this.productService = new ProductService();
         initComponents();
     }
@@ -68,7 +68,7 @@ public class MenuPanel extends JPanel {
     }
     
     private void addToCart(Product product) {
-        // cartService.addItem(product);
+        cartService.addItem(product);
     }
 }
 
