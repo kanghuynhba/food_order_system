@@ -444,7 +444,7 @@ public class LoginFrame extends JFrame {
                 break;
             case 1: // Manager
                 System.out.println("→ Navigate to ManagerMainFrame");
-                // new ui.manager.ManagerMainFrame().setVisible(true);
+                 new ui.manager.ManagerMainFrame().setVisible(true);
                 break;
             case 2: // Cashier
                 System.out.println("→ Navigate to CashierFrame");
