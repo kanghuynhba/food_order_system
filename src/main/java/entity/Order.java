@@ -1,11 +1,14 @@
 package entity;
 
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Order Entity - Đơn hàng (ENHANCED)
+ * Order Entity - Đơn hàng (FIXED)
  * Path: Source Packages/entity/Order.java
+ * 
+ * FIXED: Added missing getFormattedDateTime() method
  */
 public class Order {
     
@@ -13,9 +16,9 @@ public class Order {
     private String customerName;
     private String phoneNumber;
     private double totalAmount;
-    private int payMethod;  // 0: Cash, 1: Transfer
-    private int paymentStatus;  // 0: Unpaid, 1: Paid
-    private int status;  // 1: Pending, 2: Sent to Kitchen, 3: Cooking, 4: Ready, 5: Delivered, 6: Cancelled
+    private int payMethod;  // 0: Cash, 1: Transfer, 2: Card, 3: MoMo, 4: VNPay
+    private int paymentStatus;  // 0: Unpaid, 1: Paid, 2: Refunded, 3: Failed
+    private int status;  // 0: NEW, 1: CONFIRMED, 2: PREPARING, 3: COOKING, 4: READY, 5: COMPLETED, 6: CANCELLED
     private int assignedChefId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
@@ -31,7 +34,7 @@ public class Order {
         this.totalAmount = totalAmount;
         this.payMethod = payMethod;
         this.paymentStatus = 0;
-        this.status = 1;
+        this.status = 0;  // NEW
     }
     
     public Order(int orderId, String customerName, String phoneNumber, double totalAmount,
@@ -141,32 +144,69 @@ public class Order {
     
     // ============ HELPER METHODS ============
     
+    /**
+     * Get status name (Vietnamese)
+     */
     public String getStatusName() {
         return switch (status) {
-            case 1 -> "Pending (Cashier)";
-            case 2 -> "Sent to Kitchen";
-            case 3 -> "Cooking";
-            case 4 -> "Ready";
-            case 5 -> "Delivered";
-            case 6 -> "Cancelled";
+            case 0 -> "Đơn mới";
+            case 1 -> "Đã xác nhận";
+            case 2 -> "Đang chuẩn bị";
+            case 3 -> "Đang nấu";
+            case 4 -> "Sẵn sàng";
+            case 5 -> "Hoàn thành";
+            case 6 -> "Đã hủy";
             default -> "Unknown";
         };
     }
     
+    /**
+     * Get payment method name
+     */
     public String getPayMethodName() {
-        return payMethod == 0 ? "Cash" : "Transfer";
+        return switch (payMethod) {
+            case 0 -> "Tiền mặt";
+            case 1 -> "Chuyển khoản";
+            case 2 -> "Thẻ tín dụng";
+            case 3 -> "MoMo";
+            case 4 -> "VNPay";
+            default -> "Unknown";
+        };
     }
     
+    /**
+     * Get payment status name
+     */
     public String getPaymentStatusName() {
-        return paymentStatus == 1 ? "Paid" : "Unpaid";
+        return switch (paymentStatus) {
+            case 0 -> "Chưa thanh toán";
+            case 1 -> "Đã thanh toán";
+            case 2 -> "Đã hoàn tiền";
+            case 3 -> "Thất bại";
+            default -> "Unknown";
+        };
     }
     
+    /**
+     * Check if order is paid
+     */
     public boolean isPaid() {
         return paymentStatus == 1;
     }
     
-    public boolean isPending() {
+    /**
+     * Check status helpers
+     */
+    public boolean isNew() {
+        return status == 0;
+    }
+    
+    public boolean isConfirmed() {
         return status == 1;
+    }
+    
+    public boolean isPreparing() {
+        return status == 2;
     }
     
     public boolean isCooking() {
@@ -177,7 +217,7 @@ public class Order {
         return status == 4;
     }
     
-    public boolean isDelivered() {
+    public boolean isCompleted() {
         return status == 5;
     }
     
@@ -185,9 +225,92 @@ public class Order {
         return status == 6;
     }
     
+    // ============ FORMATTING METHODS (FIXED) ============
+    
+    /**
+     * Get formatted time only (HH:mm)
+     * Example: "10:30"
+     */
     public String getFormattedTime() {
         if (createdAt == null) return "";
-        return createdAt.toString().substring(11, 16);
+        
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            return createdAt.toLocalDateTime().format(formatter);
+        } catch (Exception e) {
+            // Fallback to substring method
+            return createdAt.toString().substring(11, 16);
+        }
+    }
+    
+    /**
+     * Get formatted date and time (dd/MM/yyyy HH:mm)
+     * Example: "29/09/2024 10:30"
+     * 
+     * ✅ FIXED: Added this missing method
+     */
+    public String getFormattedDateTime() {
+        if (createdAt == null) return "";
+        
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            return createdAt.toLocalDateTime().format(formatter);
+        } catch (Exception e) {
+            // Fallback to toString
+            return createdAt.toString();
+        }
+    }
+    
+    /**
+     * Get formatted date and time with seconds (dd/MM/yyyy HH:mm:ss)
+     * Example: "29/09/2024 10:30:45"
+     */
+    public String getFormattedDateTimeFull() {
+        if (createdAt == null) return "";
+        
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            return createdAt.toLocalDateTime().format(formatter);
+        } catch (Exception e) {
+            return createdAt.toString();
+        }
+    }
+    
+    /**
+     * Get formatted date only (dd/MM/yyyy)
+     * Example: "29/09/2024"
+     */
+    public String getFormattedDate() {
+        if (createdAt == null) return "";
+        
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return createdAt.toLocalDateTime().format(formatter);
+        } catch (Exception e) {
+            return createdAt.toString().substring(0, 10);
+        }
+    }
+    
+    /**
+     * Get time ago (e.g., "5 phút trước", "2 giờ trước")
+     */
+    public String getTimeAgo() {
+        if (createdAt == null) return "";
+        
+        long diffInMillis = System.currentTimeMillis() - createdAt.getTime();
+        long diffInMinutes = diffInMillis / (60 * 1000);
+        long diffInHours = diffInMillis / (60 * 60 * 1000);
+        long diffInDays = diffInMillis / (24 * 60 * 60 * 1000);
+        
+        if (diffInMinutes < 1) {
+            return "Vừa xong";
+        } else if (diffInMinutes < 60) {
+            return diffInMinutes + " phút trước";
+        } else if (diffInHours < 24) {
+            return diffInHours + " giờ trước";
+        } else {
+            return diffInDays + " ngày trước";
+        }
     }
     
     @Override
@@ -198,6 +321,7 @@ public class Order {
                 ", totalAmount=" + totalAmount +
                 ", status=" + getStatusName() +
                 ", paymentStatus=" + getPaymentStatusName() +
+                ", createdAt=" + getFormattedDateTime() +
                 '}';
     }
 }

@@ -13,7 +13,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
+import ui.components.*;
 /**
  * LoginFrame - Modern centered login interface
  * 
@@ -425,6 +425,46 @@ public class LoginFrame extends JFrame {
     
     // ============ NAVIGATION ============
     
+    private entity.Employee convertUserToEmployee(User user) {
+        try {
+            // Try to get Employee from database using EmployeeDAO
+            dao.EmployeeDAO employeeDAO = new dao.EmployeeDAO();
+            entity.Employee employee = employeeDAO.getById(user.getUserId());
+            
+            if (employee != null) {
+                System.out.println("✅ Found Employee in database: " + employee.getName());
+                return employee;
+            }
+            
+            // Fallback: Create Employee from User data if not found in DB
+            System.out.println("⚠️ Employee not found in DB, creating from User data");
+            employee = new entity.Employee();
+            employee.setEmployeeId(user.getUserId());
+            employee.setName(user.getUsername());
+            employee.setRole(user.getRole());
+            employee.setStatus(user.getStatus());
+            
+            // Set default values for missing fields
+            employee.setPhone("");
+            employee.setEmail("");
+            employee.setSalary(0.0);
+            
+            return employee;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error converting User to Employee: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Emergency fallback: Create basic Employee object
+            entity.Employee fallbackEmployee = new entity.Employee();
+            fallbackEmployee.setEmployeeId(user.getUserId());
+            fallbackEmployee.setName(user.getUsername());
+            fallbackEmployee.setRole(user.getRole());
+            fallbackEmployee.setStatus(1);
+            
+            return fallbackEmployee;
+        }
+    }
     private void navigateToRoleScreen(User user) {
         String roleName = user.getRoleName();
         
@@ -448,15 +488,16 @@ public class LoginFrame extends JFrame {
                 break;
             case 2: // Cashier
                 System.out.println("→ Navigate to CashierFrame");
-                // new CashierFrame(user).setVisible(true);
+                 new ui.cashier.CashierMainFrame(user).setVisible(true);
                 break;
             case 3: // Chef
                 System.out.println("→ Navigate to ChefFrame");
-                // new ChefFrame(user).setVisible(true);
+                entity.Employee chef = convertUserToEmployee(user);
+                new ui.chef.ChefMainFrame(chef).setVisible(true);
                 break;
             case 4: // Customer
                 System.out.println("→ Navigate to CustomerFrame");
-                // new CustomerFrame(user).setVisible(true);
+                 new ui.customer.CustomerMainFrame().setVisible(true);
                 break;
         }
     }
