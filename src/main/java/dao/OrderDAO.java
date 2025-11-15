@@ -230,7 +230,31 @@ public class OrderDAO extends BaseDAO<Order> {
             return false;
         }
     }
+     /**
+     * Assign chef to order
+     */
+    public boolean assignChef(int orderId, int chefId) {
+    String sql = "UPDATE " + TABLE + " SET assigned_chef_id = ?, updated_at = NOW() WHERE order_id = ?";
     
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setInt(1, chefId);
+        ps.setInt(2, orderId);
+        
+        int result = ps.executeUpdate();
+        
+        if (result > 0) {
+            System.out.println("✅ Assigned chef " + chefId + " to order " + orderId);
+            return true;
+        }
+        return false;
+        
+    } catch (SQLException e) {
+        System.err.println("❌ Error assigning chef: " + e.getMessage());
+        return false;
+    }
+}
     // ============ DELETE ============
     
     @Override
@@ -318,4 +342,5 @@ public class OrderDAO extends BaseDAO<Order> {
         order.setUpdatedAt(rs.getTimestamp("updated_at"));
         return order;
     }
+
 }
