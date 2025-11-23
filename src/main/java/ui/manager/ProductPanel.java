@@ -11,13 +11,13 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.Iterator;
-import java.util.stream.Collectors; // <- Importa questo per filtrare
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
 public class ProductPanel extends JPanel {
     
-    // --- Costanti (Nessuna modifica) ---
+    // --- Hằng số (Không thay đổi) ---
     private static final Color COLOR_ACCENT = new Color(255, 152, 0);
     private static final Color COLOR_ACCENT_HOVER = new Color(230, 136, 0);
     private static final Color COLOR_BACKGROUND = Color.WHITE;
@@ -48,7 +48,7 @@ public class ProductPanel extends JPanel {
         loadProducts();
     }
     
-    // --- Metodi initComponents() e createHeader() (Nessuna modifica) ---
+    // --- Phương thức initComponents() và createHeader() (Không thay đổi) ---
     private void initComponents() {
         setLayout(new BorderLayout());
         setBackground(COLOR_BACKGROUND);
@@ -105,53 +105,53 @@ public class ProductPanel extends JPanel {
     }
 
     /**
-     * [MODIFICATO]
-     * Ora filtra i prodotti non disponibili (available == 0).
+     * [ĐÃ SỬA ĐỔI]
+     * Lọc các sản phẩm không có sẵn (available == 0).
      */
     private void loadProducts() {
         productsGrid.removeAll();
-        // 1. Get all products and filter them
+        // 1. Lấy tất cả sản phẩm và lọc chúng
         List<Product> allProducts = productService.getAllProducts();
         List<Product> availableProducts = allProducts.stream()
                 .filter(Product::isAvailable)
                 .collect(Collectors.toList());
 
-        System.out.println("Loading " + availableProducts.size() + " available products...");
+        System.out.println("Đang tải " + availableProducts.size() + " sản phẩm có sẵn...");
 
-        // 2. Create an iterator for our product list
+        // 2. Tạo iterator cho danh sách sản phẩm
         Iterator<Product> productIterator = availableProducts.iterator();
 
-        // 3. Stop any timer that might still be running from a previous load
+        // 3. Dừng bất kỳ timer nào đang chạy từ lần tải trước
         if (cardLoadTimer != null && cardLoadTimer.isRunning()) {
             cardLoadTimer.stop();
         }
 
-        // 4. Set up the Timer
-        // This timer will fire every 50 milliseconds
-        int delayBetweenCards = 50; // (Adjust this value to be faster or slower)
+        // 4. Thiết lập Timer
+        // Timer này sẽ kích hoạt mỗi 50 mili giây
+        int delayBetweenCards = 50; // (Điều chỉnh giá trị này để nhanh hơn hoặc chậm hơn)
 
         cardLoadTimer = new Timer(delayBetweenCards, e -> {
             if (productIterator.hasNext()) {
-                // If there are more products, add the next one
+                // Nếu còn sản phẩm, thêm sản phẩm tiếp theo
                 Product product = productIterator.next();
                 productsGrid.add(createProductCard(product));
                 
-                // Refresh the layout after adding
+                // Làm mới bố cục sau khi thêm
                 productsGrid.revalidate();
                 productsGrid.repaint();
             } else {
-                // No more products left, stop the timer
+                // Không còn sản phẩm nào, dừng timer
                 ((Timer) e.getSource()).stop();
-                System.out.println("All cards loaded.");
+                System.out.println("Đã tải xong tất cả thẻ sản phẩm.");
             }
         });
 
-        // 5. Start the timer!
+        // 5. Bắt đầu timer!
         cardLoadTimer.start();
     }
     
-    // --- Metodo createProductCard() (Nessuna modifica) ---
-    // Questo metodo chiama il `loadImageAsync` riscritto
+    // --- Phương thức createProductCard() (Không thay đổi) ---
+    // Phương thức này gọi `loadImageAsync` đã được viết lại
     private JPanel createProductCard(Product product) {
         JPanel card = new JPanel(new BorderLayout(0, 0));
         card.setBackground(COLOR_BACKGROUND);
@@ -179,7 +179,7 @@ public class ProductPanel extends JPanel {
         
         imageContainer.add(imgLabel, BorderLayout.CENTER);
         
-        // Chiama il metodo `loadImageAsync` aggiornato
+        // Gọi phương thức `loadImageAsync` đã cập nhật
         loadImageAsync(product, imgLabel, imageContainer);
         
         JPanel infoPanel = new JPanel();
@@ -233,7 +233,7 @@ public class ProductPanel extends JPanel {
         });
         
         addBtn.addActionListener(e -> {
-            System.out.println("Adding to cart: " + product.getName());
+            System.out.println("Đang thêm vào giỏ hàng: " + product.getName());
             JOptionPane.showMessageDialog(card, 
                 product.getName() + " đã được thêm vào giỏ hàng!", 
                 "Thành công", 
@@ -251,15 +251,15 @@ public class ProductPanel extends JPanel {
     }
     
     /**
-     * [RISCRITTO]
-     * Carica l'immagine dal CLASSPATH (cartella resources) invece che da un URL web.
+     * [ĐÃ VIẾT LẠI]
+     * Tải hình ảnh từ CLASSPATH (thư mục resources) thay vì từ URL web.
      */
     private void loadImageAsync(Product product, JLabel imgLabel, JPanel imageContainer) {
-        // Ora `imagePath` sarà "images/1.jpg", "images/2.png", ecc.
+        // Bây giờ `imagePath` sẽ là "images/1.jpg", "images/2.png", v.v.
         String imagePath = product.getImageUrl();
         
         if (imagePath == null || imagePath.trim().isEmpty()) {
-            imgLabel.setText("🍔"); // Placeholder per nessun percorso immagine
+            imgLabel.setText("🍔"); // Placeholder khi không có đường dẫn ảnh
             imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
             return;
         }
@@ -268,35 +268,35 @@ public class ProductPanel extends JPanel {
             @Override
             protected ImageIcon doInBackground() throws Exception {
                 try {
-                    // 1. Formatta il percorso per essere assoluto dalla root del classpath
+                    // 1. Định dạng đường dẫn để trở thành tuyệt đối từ root của classpath
                     String resourcePath = imagePath;
                     if (!resourcePath.startsWith("/")) {
                         resourcePath = "/" + resourcePath;
                     }
 
-                    // 2. Ottieni l'URL della risorsa dal classpath
+                    // 2. Lấy URL của tài nguyên từ classpath
                     URL resourceUrl = getClass().getResource(resourcePath);
                     
-                    // 3. Controlla se la risorsa è stata trovata
+                    // 3. Kiểm tra xem tài nguyên có được tìm thấy không
                     if (resourceUrl == null) {
-                        System.err.println("✗ Risorsa non trovata: " + resourcePath);
-                        return null; // File mancante da resources/images
+                        System.err.println("✗ Không tìm thấy tài nguyên: " + resourcePath);
+                        return null; // File bị thiếu từ resources/images
                     }
 
-                    // 4. Leggi l'immagine dalla risorsa
+                    // 4. Đọc hình ảnh từ tài nguyên
                     BufferedImage image = ImageIO.read(resourceUrl);
                     
                     if (image != null) {
-                        // 5. Scala l'immagine
+                        // 5. Thay đổi kích thước hình ảnh
                         Image scaledImage = image.getScaledInstance(CARD_WIDTH, 180, Image.SCALE_SMOOTH);
                         return new ImageIcon(scaledImage);
                     } else {
-                        System.err.println("✗ ImageIO.read ha restituito null per: " + resourcePath);
+                        System.err.println("✗ ImageIO.read trả về null cho: " + resourcePath);
                         return null;
                     }
                 } catch (Exception e) {
-                    System.err.println("✗ Errore durante il caricamento della risorsa " + imagePath + ": " + e.getMessage());
-                    e.printStackTrace(); // Per un debug dettagliato
+                    System.err.println("✗ Lỗi khi tải tài nguyên " + imagePath + ": " + e.getMessage());
+                    e.printStackTrace(); // Để debug chi tiết
                     return null;
                 }
             }
@@ -309,17 +309,17 @@ public class ProductPanel extends JPanel {
                         imgLabel.setIcon(icon);
                         imgLabel.setText(null);
                         
-                        // Il badge "Hết hàng" non è più necessario qui
-                        // perché abbiamo filtrato i prodotti in loadProducts()
+                        // Badge "Hết hàng" không còn cần thiết ở đây
+                        // vì chúng ta đã lọc sản phẩm trong loadProducts()
                         
                     } else {
-                        // Se il caricamento fallisce (null), imposta il placeholder
+                        // Nếu tải thất bại (null), đặt placeholder
                         imgLabel.setText("🍔");
                         imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
                     }
                 } catch (Exception e) {
-                    System.err.println("Errore nel metodo done(): " + e.getMessage());
-                    imgLabel.setText("❌"); // Placeholder per errore
+                    System.err.println("Lỗi trong phương thức done(): " + e.getMessage());
+                    imgLabel.setText("❌"); // Placeholder cho lỗi
                     imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
                 }
             }
@@ -327,7 +327,7 @@ public class ProductPanel extends JPanel {
         worker.execute();
     }
     
-    // --- Classe WrapLayout (Nessuna modifica) ---
+    // --- Lớp WrapLayout (Không thay đổi) ---
     static class WrapLayout extends FlowLayout {
         public WrapLayout(int align, int hgap, int vgap) {
             super(align, hgap, vgap);
@@ -338,9 +338,7 @@ public class ProductPanel extends JPanel {
         }
         @Override
         public Dimension minimumLayoutSize(Container target) {
-            Dimension minimum = layoutSize(target, false);
-            minimum.width -= (getHgap() + 1);
-            return minimum;
+            return layoutSize(target, false);
         }
         private Dimension layoutSize(Container target, boolean preferred) {
             synchronized (target.getTreeLock()) {

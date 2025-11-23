@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import javax.imageio.ImageIO;
 
 /**
  * MenuPOSPanel - POS Menu with cart sidebar (Image 9 style)
@@ -270,9 +273,8 @@ public class MenuPOSPanel extends JPanel {
             displayProducts(filtered);
         }
     }
-    
-    // ============ PRODUCT CARD ============
-    
+   // ============ PRODUCT CARD ============
+
     private RoundedPanel createProductCard(Product product) {
         RoundedPanel card = new RoundedPanel(10, true);
         card.setBackground(Color.WHITE);
@@ -285,10 +287,14 @@ public class MenuPOSPanel extends JPanel {
         imgPanel.setBackground(new Color(245, 245, 245));
         imgPanel.setPreferredSize(new Dimension(0, 100));
         
-        JLabel imgLabel = new JLabel(getEmojiForCategory(product.getCategory()));
+        JLabel imgLabel = new JLabel("⏳");
         imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
         imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imgLabel.setVerticalAlignment(SwingConstants.CENTER);
         imgPanel.add(imgLabel, BorderLayout.CENTER);
+        
+        // Load image asynchronously
+        loadProductImage(product, imgLabel);
         
         // Info panel
         JPanel infoPanel = new JPanel();
@@ -321,6 +327,62 @@ public class MenuPOSPanel extends JPanel {
         card.add(infoPanel, BorderLayout.CENTER);
         
         return card;
+    }
+
+    private void loadProductImage(Product product, JLabel imgLabel) {
+        String imagePath = product.getImageUrl();
+        
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            imgLabel.setText(getEmojiForCategory(product.getCategory()));
+            imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+            return;
+        }
+    
+        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ImageIcon doInBackground() throws Exception {
+                try {
+                    String resourcePath = imagePath;
+                    if (!resourcePath.startsWith("/")) {
+                        resourcePath = "/" + resourcePath;
+                    }
+
+                    URL resourceUrl = getClass().getResource(resourcePath);
+                    
+                    if (resourceUrl == null) {
+                        return null;
+                    }
+
+                    BufferedImage image = ImageIO.read(resourceUrl);
+                    
+                    if (image != null) {
+                        Image scaledImage = image.getScaledInstance(180, 100, Image.SCALE_SMOOTH);
+                        return new ImageIcon(scaledImage);
+                    }
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    ImageIcon icon = get();
+                    if (icon != null) {
+                        imgLabel.setIcon(icon);
+                        imgLabel.setText(null);
+                    } else {
+                        imgLabel.setText(getEmojiForCategory(product.getCategory()));
+                        imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+                    }
+                } catch (Exception e) {
+                    imgLabel.setText(getEmojiForCategory(product.getCategory()));
+                    imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+                }
+            }
+        };
+        worker.execute();
     }
     
     private String getEmojiForCategory(String category) {

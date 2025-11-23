@@ -22,7 +22,7 @@ public class DBConnection {
     private static final String DB_PORT = "3306";
     private static final String DB_NAME = "fastfood_db";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "ntqhtk18";
+    private static final String DB_PASSWORD = "131104";
     
     // Complete URL with all necessary parameters
     private static final String DB_URL = String.format(
