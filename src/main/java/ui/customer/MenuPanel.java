@@ -17,7 +17,7 @@ import java.util.List;
  * MenuPanel - Product browsing with categories and grid layout
  * Based on Image 9 design
  * 
- * FIXED VERSION - Load products from database
+ * Load products from database
  * 
  * @author Nguyễn Trường Quốc Huân & Huỳnh Bá Khang
  */
@@ -83,7 +83,7 @@ public class MenuPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panel.setOpaque(false);
         
-        String[] categories = {"🍔 Burger", "🍕 Pizza", "🍗 Chicken", "🍟 Sides", "🥤 Drinks", "🎁 Combo"};
+        String[] categories = {"Burger", "Pizza", "Chicken", "Sides", "Drinks", "Combo"};
         
         // All button
         RoundedButton allBtn = new RoundedButton("Tất cả", 20);
@@ -112,95 +112,19 @@ public class MenuPanel extends JPanel {
         try {
             // Load tất cả products available từ DB
             List<Product> dbProducts = productDAO.getAllAvailable();
-            
             if (dbProducts != null && !dbProducts.isEmpty()) {
                 allProducts = dbProducts;
                 System.out.println("✅ Loaded " + dbProducts.size() + " products from database");
             } else {
-                // Nếu DB trống, load sample data
-                System.out.println("⚠️ No products in database, loading sample data...");
-                loadSampleProducts();
+                System.out.println("⚠️ No products in database...");
             }
             
         } catch (Exception e) {
             System.err.println("❌ Error loading products from database: " + e.getMessage());
             e.printStackTrace();
-            
-            // Fallback to sample data
-            loadSampleProducts();
         }
     }
-    
-    /**
-     * Load sample products (nếu DB trống)
-     */
-    private void loadSampleProducts() {
-        // Sử dụng constructor ĐÚNG của Product
-        // Constructor: Product(String name, String description, double price, String category, String imageUrl)
-        
-        // Burgers
-        Product p1 = new Product("Double Cheese Burger", 
-            "Burger đôi với phô mai đặc biệt", 89000, "Burger", "img1.jpg");
-        p1.setProductId(1);
-        p1.setAvailable(1);
-        allProducts.add(p1);
-        
-        Product p7 = new Product("Big Burger", 
-            "Burger bò với rau tươi", 65000, "Burger", "img7.jpg");
-        p7.setProductId(7);
-        p7.setAvailable(1);
-        allProducts.add(p7);
-        
-        // Combo
-        Product p2 = new Product("Combo Gà Rán + Pepsi", 
-            "Burger gà + Khoai tây + nước", 129000, "Combo", "img2.jpg");
-        p2.setProductId(2);
-        p2.setAvailable(1);
-        allProducts.add(p2);
-        
-        Product p6 = new Product("Combo Burger Set", 
-            "Burger + Fries + Drink", 149000, "Combo", "img6.jpg");
-        p6.setProductId(6);
-        p6.setAvailable(1);
-        allProducts.add(p6);
-        
-        // Pizza
-        Product p3 = new Product("Family Pizza Combo", 
-            "Pizza cỡ lớn + 2 Pepsi", 299000, "Pizza", "img3.jpg");
-        p3.setProductId(3);
-        p3.setAvailable(1);
-        allProducts.add(p3);
-        
-        Product p8 = new Product("Pizza Pepperoni", 
-            "Pizza xúc xích Ý", 129000, "Pizza", "img8.jpg");
-        p8.setProductId(8);
-        p8.setAvailable(1);
-        allProducts.add(p8);
-        
-        // Chicken
-        Product p4 = new Product("Fried Chicken Bucket (6 pcs)", 
-            "Gà rán giòn tan 6 miếng", 159000, "Chicken", "img4.jpg");
-        p4.setProductId(4);
-        p4.setAvailable(1);
-        allProducts.add(p4);
-        
-        // Sides
-        Product p5 = new Product("Khoai Tây Chiên", 
-            "Khoai tây giòn size lớn", 45000, "Sides", "img5.jpg");
-        p5.setProductId(5);
-        p5.setAvailable(1);
-        allProducts.add(p5);
-        
-        // Drinks
-        Product p9 = new Product("Pepsi Cola", 
-            "Nước ngọt có ga size L", 25000, "Drinks", "img6.jpg");
-        p9.setProductId(6);
-        p9.setAvailable(1);
-        allProducts.add(p9);
-        
-        System.out.println("✅ Loaded " + allProducts.size() + " sample products");
-    }
-    
+       
     private void displayProducts(List<Product> products) {
         productsContainer.removeAll();
         

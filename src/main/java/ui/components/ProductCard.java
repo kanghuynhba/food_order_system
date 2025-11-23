@@ -6,6 +6,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import javax.imageio.ImageIO;
+
 
 /**
  * ProductCard - Modern product display card
@@ -58,7 +62,9 @@ public class ProductCard extends RoundedPanel {
         
         imgLabel = new JLabel();
         imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imgLabel.setVerticalAlignment(SwingConstants.CENTER);
         imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+        imgLabel.setText("⏳");
         imgPanel.add(imgLabel, BorderLayout.CENTER);
         
         // Status badge (top-right corner)
@@ -105,16 +111,13 @@ public class ProductCard extends RoundedPanel {
         
         add(imgPanel, BorderLayout.NORTH);
         add(infoPanel, BorderLayout.CENTER);
-    }
-    
+    }    
     // ============ LOAD DATA ============
     
     private void loadProductData() {
         if (product == null) return;
-        
-        // Set image emoji (placeholder)
-        String emoji = getEmojiForCategory(product.getCategory());
-        imgLabel.setText(emoji);
+
+        loadProductImage();
         
         // Set name (truncate if too long)
         String name = product.getName();
@@ -142,6 +145,69 @@ public class ProductCard extends RoundedPanel {
             statusBadge.setVisible(true);
             addBtn.setEnabled(false);
         }
+    }
+    private void loadProductImage() {
+        String imagePath = product.getImageUrl();
+        
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            String emoji = getEmojiForCategory(product.getCategory());
+            imgLabel.setText(emoji);
+            imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+            return;
+        }
+        
+        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ImageIcon doInBackground() throws Exception {
+                try {
+                    String resourcePath = imagePath;
+                    if (!resourcePath.startsWith("/")) {
+                        resourcePath = "/" + resourcePath;
+                    }
+
+                    URL resourceUrl = getClass().getResource(resourcePath);
+                    
+                    if (resourceUrl == null) {
+                        System.err.println("✗ Không tìm thấy ảnh: " + resourcePath);
+                        return null;
+                    }
+
+                    BufferedImage image = ImageIO.read(resourceUrl);
+                    
+                    if (image != null) {
+                        Image scaledImage = image.getScaledInstance(220, 160, Image.SCALE_SMOOTH);
+                        return new ImageIcon(scaledImage);
+                    } else {
+                        System.err.println("✗ Không đọc được ảnh: " + resourcePath);
+                        return null;
+                    }
+                } catch (Exception e) {
+                    System.err.println("✗ Lỗi khi tải ảnh " + imagePath + ": " + e.getMessage());
+                    return null;
+                }
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    ImageIcon icon = get();
+                    if (icon != null) {
+                        imgLabel.setIcon(icon);
+                        imgLabel.setText(null);
+                    } else {
+                        String emoji = getEmojiForCategory(product.getCategory());
+                        imgLabel.setText(emoji);
+                        imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+                    }
+                } catch (Exception e) {
+                    System.err.println("Lỗi trong done(): " + e.getMessage());
+                    String emoji = getEmojiForCategory(product.getCategory());
+                    imgLabel.setText(emoji);
+                    imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+                }
+            }
+        };
+        worker.execute();
     }
     
     // ============ HELPER ============
