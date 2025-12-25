@@ -18,7 +18,7 @@ public class ProductForm extends BaseForm {
     private JTextField txtName;
     private JTextArea txtDesc;
     private JTextField txtPrice;
-    private String txtImageUrl;
+    private String txtImageUrl=null;
     private JComboBox<String> cbCategory;
     private JCheckBox chkAvailable;
 
@@ -136,7 +136,7 @@ public class ProductForm extends BaseForm {
         String desc = txtDesc.getText();
         String category = cbCategory.getSelectedItem().toString();
         int available = chkAvailable.isSelected() ? 1 : 0;
-        String finalImageUrl = (currentImageUrl != null) ? currentImageUrl : ""; 
+        String finalImageUrl = (txtImageUrl != null) ? txtImageUrl : ""; 
 
         // 3. Phân biệt Add hay Update
         if (this.product == null) {
