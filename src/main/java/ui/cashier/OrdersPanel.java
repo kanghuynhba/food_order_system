@@ -120,7 +120,7 @@ public class OrdersPanel extends JPanel {
         
         // Filter combo
         filterCombo = new JComboBox<>(new String[]{
-            "All Orders", "New Orders", "Confirmed", "Preparing", 
+            "All Orders", "New Orders", "Preparing", 
             "Cooking", "Ready", "Completed", "Cancelled"
         });
         filterCombo.setFont(UIConstants.FONT_BODY);
@@ -136,13 +136,7 @@ public class OrdersPanel extends JPanel {
         refreshBtn.setPreferredSize(new Dimension(120, 40));
         refreshBtn.addActionListener(e -> refreshOrders());
         
-        RoundedButton printBtn = new RoundedButton("🖨️ Print All", 8);
-        printBtn.setBackground(new Color(117, 117, 117));
-        printBtn.setPreferredSize(new Dimension(120, 40));
-        printBtn.addActionListener(e -> printAllOrders());
-        
         buttonsPanel.add(refreshBtn);
-        buttonsPanel.add(printBtn);
         
         // Left: search + filter
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
@@ -255,7 +249,7 @@ public class OrdersPanel extends JPanel {
         
         // Buttons based on status
         if (order.getStatus() == 0 || order.getStatus() == 1) { // New or Confirmed
-            RoundedButton sendBtn = new RoundedButton("✓ Send to chef", 6);
+            RoundedButton sendBtn = new RoundedButton("Send to chef", 6);
             sendBtn.setBackground(GREEN);
             sendBtn.setPreferredSize(new Dimension(120, 32));
             sendBtn.addActionListener(e -> sendToChef(order));
@@ -263,18 +257,12 @@ public class OrdersPanel extends JPanel {
         }
         
         if (!order.isPaid()) {
-            RoundedButton payBtn = new RoundedButton("💳 Mark as Paid", 6);
+            RoundedButton payBtn = new RoundedButton("Mark as Paid", 6);
             payBtn.setBackground(BLUE);
             payBtn.setPreferredSize(new Dimension(130, 32));
             payBtn.addActionListener(e -> markAsPaid(order));
             buttonsPanel.add(payBtn);
         }
-        
-        RoundedButton printBtn = new RoundedButton("🖨️", 6);
-        printBtn.setBackground(new Color(117, 117, 117));
-        printBtn.setPreferredSize(new Dimension(40, 32));
-        printBtn.addActionListener(e -> printOrder(order));
-        buttonsPanel.add(printBtn);
         
         bottomPanel.add(totalLabel, BorderLayout.WEST);
         bottomPanel.add(buttonsPanel, BorderLayout.EAST);
@@ -345,22 +333,6 @@ public class OrdersPanel extends JPanel {
         if (dialog.isPaid()) {
             refreshOrders();
         }
-    }
-    
-    private void printOrder(Order order) {
-        JOptionPane.showMessageDialog(this, 
-            "🖨️ In hóa đơn #" + order.getOrderId() + "\n" +
-            "(Chức năng đang phát triển)",
-            "In hóa đơn",
-            JOptionPane.INFORMATION_MESSAGE);
-    }
-    
-    private void printAllOrders() {
-        JOptionPane.showMessageDialog(this, 
-            "🖨️ In tất cả đơn hàng\n" +
-            "(Chức năng đang phát triển)",
-            "In tất cả",
-            JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void filterOrders() {

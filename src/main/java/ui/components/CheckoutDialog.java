@@ -1,16 +1,21 @@
-package ui.customer;
+package ui.components;
 
 import entity.CartItem;
-import ui.components.RoundedButton;
-import ui.components.RoundedPanel;
+import entity.OrderItem;
+import entity.Order;
+
 import util.ColorScheme;
 import util.CurrencyUtil;
+
 import config.UIConstants;
+
+import service.OrderService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * CheckoutDialog - Payment confirmation modal
@@ -21,6 +26,8 @@ public class CheckoutDialog extends JDialog {
     private List<CartItem> cartItems;
     private double totalAmount;
     private boolean checkoutSuccessful = false;
+
+    private OrderService orderService;
     
     private JComboBox<String> paymentMethodCombo;
     private JTextField customerNameField;
@@ -31,6 +38,7 @@ public class CheckoutDialog extends JDialog {
         super(parent, "Thanh toán", true);
         this.cartItems = cartItems;
         this.totalAmount = totalAmount;
+        this.orderService=OrderService.getInstance();
         
         setSize(UIConstants.SIZE_DIALOG_MEDIUM);
         setLocationRelativeTo(parent);
@@ -234,7 +242,7 @@ public class CheckoutDialog extends JDialog {
         titleLabel.setFont(UIConstants.FONT_HEADING);
         
         // Payment method combo
-        String[] methods = {"💵 Tiền mặt", "💳 Thẻ tín dụng", "📱 MoMo", "🏦 Chuyển khoản", "💰 VNPay"};
+        String[] methods = {"Tiền mặt", "Thẻ tín dụng", "MoMo", "Chuyển khoản", "VNPay"};
         paymentMethodCombo = new JComboBox<>(methods);
         paymentMethodCombo.setFont(UIConstants.FONT_BODY);
         paymentMethodCombo.setPreferredSize(new Dimension(0, 40));
@@ -324,6 +332,14 @@ public class CheckoutDialog extends JDialog {
         // Process order (here you would save to database)
         int paymentMethod = paymentMethodCombo.getSelectedIndex();
         String notes = notesArea.getText().trim();
+
+        List<OrderItem> items=new ArrayList<>();
+
+        for(CartItem item : cartItems) {
+            items.add(item.toOrderItem());
+        }
+
+        Order newOrder=orderService.createOrder(name, phone, items, paymentMethod);
         
         // Simulate processing
         JOptionPane.showMessageDialog(

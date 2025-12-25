@@ -1,8 +1,13 @@
 package ui.manager;
 
 import entity.Product;
+
 import service.ProductService;
+
 import ui.components.ProductCard;
+import ui.components.RoundedButton;
+
+import form.ProductForm;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -19,6 +24,9 @@ import javax.swing.SwingWorker;
 public class ProductPanel extends JPanel {
     
     // --- Hằng số (Không thay đổi) ---
+    private static final Color ORANGE = new Color(255, 152, 0);
+    private static final Color GREEN = new Color(0, 204, 0);
+
     private static final Color COLOR_ACCENT = new Color(255, 152, 0);
     private static final Color COLOR_ACCENT_HOVER = new Color(230, 136, 0);
     private static final Color COLOR_BACKGROUND = Color.WHITE;
@@ -38,12 +46,17 @@ public class ProductPanel extends JPanel {
         new EmptyBorder(-1, -1, -1, -1)
     );
     
+    private ManagerMainFrame parentFrame;
     private ProductService productService;
     private JPanel productsGrid;
     private JTextField searchField;
     private Timer cardLoadTimer; 
+    private RoundedButton addProductBtn;
+    private RoundedButton refreshBtn;
+
     
-    public ProductPanel() {
+    public ProductPanel(ManagerMainFrame parentFrame) {
+        this.parentFrame=parentFrame;
         productService = ProductService.getInstance();
         initComponents();
         loadProducts();
@@ -80,24 +93,34 @@ public class ProductPanel extends JPanel {
         JPanel controlsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         controlsPanel.setBackground(COLOR_BACKGROUND);
         
-        searchField = new JTextField("🔍 Tìm món nhanh...");
-        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        searchField.setForeground(Color.GRAY);
-        searchField.setPreferredSize(new Dimension(280, 38));
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            new EmptyBorder(5, 12, 5, 12)
-        ));
+        // searchField = new JTextField("🔍 Tìm món nhanh...");
+        // searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // searchField.setForeground(Color.GRAY);
+        // searchField.setPreferredSize(new Dimension(280, 38));
+        // searchField.setBorder(BorderFactory.createCompoundBorder(
+        //     BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+        //     new EmptyBorder(5, 12, 5, 12)
+        // ));
         
-        controlsPanel.add(searchField);
-        
-        String[] categories = {"Tất cả Loại", "Tất cả Trạng thái"};
-        for (String cat : categories) {
-            JComboBox<String> combo = new JComboBox<>(new String[]{cat});
-            combo.setPreferredSize(new Dimension(150, 38));
-            combo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-            controlsPanel.add(combo);
-        }
+        // controlsPanel.add(searchField);
+        addProductBtn = new RoundedButton("Thêm Product", 8);
+        addProductBtn.setBackground(ORANGE);
+        addProductBtn.setPreferredSize(new Dimension(180, 38));
+        addProductBtn.setMaximumSize(new Dimension(200, 38));
+        addProductBtn.addActionListener(e -> {
+            new ProductForm(parentFrame).setVisible(true);
+            
+        });
+        controlsPanel.add(addProductBtn);
+
+        refreshBtn = new RoundedButton("Refresh", 8);
+        refreshBtn.setBackground(GREEN);
+        refreshBtn.setPreferredSize(new Dimension(180, 38));
+        refreshBtn.setMaximumSize(new Dimension(200, 38));
+        refreshBtn.addActionListener(e -> {
+            loadProducts();
+        });
+        controlsPanel.add(refreshBtn);
         
         headerPanel.add(title, BorderLayout.WEST);
         headerPanel.add(controlsPanel, BorderLayout.EAST);
@@ -151,9 +174,14 @@ public class ProductPanel extends JPanel {
         cardLoadTimer.start();
     }
     
-    // Phương thức này gọi `loadImageAsync` đã được viết lại
     private JPanel createProductCard(Product product) {
-        return new ProductCard(product, true);
+        ProductCard card=new ProductCard(product, true);
+
+        card.getEditButton().addActionListener(e -> {
+            new ProductForm(parentFrame, product).setVisible(true);
+        });
+
+        return card;
     }
     
     /**

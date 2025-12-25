@@ -42,7 +42,7 @@ public class ProductService {
      * Thêm sản phẩm mới
      */
     public boolean addProduct(String name, String description, double price, 
-                             String category, String imageUrl) {
+                             String category, String imageUrl, int avail) {
         try {
             // Validate
             if (name == null || name.trim().isEmpty()) {
@@ -67,7 +67,7 @@ public class ProductService {
             product.setPrice(price);
             product.setCategory(category);
             product.setImageUrl(imageUrl);
-            product.setAvailable(1); // Available by default
+            product.setAvailable(avail); // Available by default
             
             boolean success = productDAO.create(product);
             

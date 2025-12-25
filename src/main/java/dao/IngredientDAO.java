@@ -45,7 +45,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
     
     @Override
     public Ingredient getById(int id) {
-        String sql = "SELECT * FROM " + TABLE + " WHERE material_id = ?";
+        String sql = "SELECT * FROM " + TABLE + " WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -153,7 +153,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
     public boolean update(Ingredient ingredient) {
         String sql = "UPDATE " + TABLE + 
                      " SET name = ?, quantity = ?, unit = ?, expiry_date = ?, " +
-                     "supplier = ?, status = ?, updated_at = NOW() WHERE material_id = ?";
+                     "supplier = ?, status = ?, updated_at = NOW() WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -180,7 +180,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
      */
     public boolean updateQuantity(int ingredientId, double quantity) {
         String sql = "UPDATE " + TABLE + " SET quantity = ?, updated_at = NOW() " +
-                     "WHERE material_id = ?";
+                     "WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -202,7 +202,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
      */
     public boolean addQuantity(int ingredientId, double amount) {
         String sql = "UPDATE " + TABLE + " SET quantity = quantity + ?, updated_at = NOW() " +
-                     "WHERE material_id = ?";
+                     "WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -224,7 +224,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
      */
     public boolean reduceQuantity(int ingredientId, double amount) {
         String sql = "UPDATE " + TABLE + " SET quantity = GREATEST(0, quantity - ?), " +
-                     "updated_at = NOW() WHERE material_id = ?";
+                     "updated_at = NOW() WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -245,7 +245,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
     
     @Override
     public boolean delete(int id) {
-        String sql = "DELETE FROM " + TABLE + " WHERE material_id = ?";
+        String sql = "DELETE FROM " + TABLE + " WHERE ingredient_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -313,7 +313,7 @@ public class IngredientDAO extends BaseDAO<Ingredient> {
     
     private Ingredient mapResultSetToIngredient(ResultSet rs) throws SQLException {
         Ingredient ingredient = new Ingredient();
-        ingredient.setIngredientId(rs.getInt("material_id"));
+        ingredient.setIngredientId(rs.getInt("ingredient_id"));
         ingredient.setName(rs.getString("name"));
         ingredient.setQuantity(rs.getDouble("quantity"));
         ingredient.setUnit(rs.getString("unit"));

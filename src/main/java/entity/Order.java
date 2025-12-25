@@ -17,8 +17,8 @@ public class Order {
     private String phoneNumber;
     private double totalAmount;
     private int payMethod;  // 0: Cash, 1: Transfer, 2: Card, 3: MoMo, 4: VNPay
-    private int paymentStatus;  // 0: Unpaid, 1: Paid, 2: Refunded, 3: Failed
-    private int status;  // 0: NEW, 1: CONFIRMED, 2: PREPARING, 3: COOKING, 4: READY, 5: COMPLETED, 6: CANCELLED
+    private int paymentStatus=0;  // 0: Unpaid, 1: Paid, 2: Refunded, 3: Failed
+    private int status=0;  // 0: NEW, 1: PREPARING, 2: COOKING, 3: READY, 4: COMPLETED, 5: CANCELLED
     private int assignedChefId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
@@ -33,8 +33,10 @@ public class Order {
         this.phoneNumber = phoneNumber;
         this.totalAmount = totalAmount;
         this.payMethod = payMethod;
-        this.paymentStatus = 0;
-        this.status = 0;  // NEW
+        if(payMethod>0) {
+            this.paymentStatus=1;
+            this.status = 1;  // NEW
+        }
     }
     
     public Order(int orderId, String customerName, String phoneNumber, double totalAmount,

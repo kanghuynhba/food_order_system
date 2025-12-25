@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import javax.imageio.ImageIO;
 
+import java.io.File;
+
 
 /**
  * ProductCard - Modern product display card
@@ -25,13 +27,14 @@ public class ProductCard extends RoundedPanel {
     
     private static final Color ORANGE = new Color(255, 152, 0);
     private static final Color RED = new Color(244, 67, 54);
-    
+
     private Product product;
     private JLabel imgLabel;
     private JLabel nameLabel;
     private JLabel priceLabel;
     private JLabel descLabel;
     private RoundedButton addBtn;
+    private RoundedButton editBtn;
     private StatusBadge statusBadge;
     private NumberFormat currencyFormat;
     private boolean disableBtn;
@@ -49,14 +52,12 @@ public class ProductCard extends RoundedPanel {
     }
 
     public ProductCard(Product product, boolean disableBtn) {
-        super(12, true);
-        this.product = product;
+        this(product);
         this.disableBtn=disableBtn;
-        this.currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
-        
         initComponents();
         loadProductData();
         enableHoverEffect(true);
+
     }
     
     // ============ INIT COMPONENTS ============
@@ -112,15 +113,24 @@ public class ProductCard extends RoundedPanel {
         addBtn.setBackground(ORANGE);
         addBtn.setPreferredSize(new Dimension(180, 38));
         addBtn.setMaximumSize(new Dimension(200, 38));
+
+        // Edit button
+        editBtn = new RoundedButton("Sửa", 8);
+        editBtn.setBackground(ORANGE);
+        editBtn.setPreferredSize(new Dimension(180, 38));
+        editBtn.setMaximumSize(new Dimension(200, 38));
+
         
         infoPanel.add(nameLabel);
         infoPanel.add(Box.createVerticalStrut(5));
         infoPanel.add(descLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(priceLabel);
+        infoPanel.add(Box.createVerticalStrut(10));
         if(!disableBtn) {
-            infoPanel.add(Box.createVerticalStrut(10));
             infoPanel.add(addBtn);
+        } else {
+            infoPanel.add(editBtn);
         }
         
         add(imgPanel, BorderLayout.NORTH);
@@ -160,69 +170,82 @@ public class ProductCard extends RoundedPanel {
             addBtn.setEnabled(false);
         }
     }
+
     private void loadProductImage() {
         String imagePath = product.getImageUrl();
-        
+
+        // 1. Check if path is empty
         if (imagePath == null || imagePath.trim().isEmpty()) {
-            String emoji = getEmojiForCategory(product.getCategory());
-            imgLabel.setText(emoji);
-            imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+            showEmoji();
             return;
         }
-        
+
         SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
             @Override
             protected ImageIcon doInBackground() throws Exception {
                 try {
-                    String resourcePath = imagePath;
-                    if (!resourcePath.startsWith("/")) {
-                        resourcePath = "/" + resourcePath;
+                    // --- FIX STARTS HERE ---
+                    
+                    // Case A: Handling Local Files (from JFileChooser)
+                    File file = new File(imagePath);
+                    if (file.exists()) {
+                         BufferedImage image = ImageIO.read(file);
+                         if (image != null) {
+                             return scaleImage(image);
+                         }
                     }
 
-                    URL resourceUrl = getClass().getResource(resourcePath);
-                    
-                    if (resourceUrl == null) {
-                        System.err.println("✗ Không tìm thấy ảnh: " + resourcePath);
-                        return null;
+                    // Case B: Handling Web URLs (if you paste an https:// link)
+                    if (imagePath.startsWith("http")) {
+                         URL url = new URL(imagePath);
+                         BufferedImage image = ImageIO.read(url);
+                         if (image != null) {
+                             return scaleImage(image);
+                         }
                     }
 
-                    BufferedImage image = ImageIO.read(resourceUrl);
-                    
-                    if (image != null) {
-                        Image scaledImage = image.getScaledInstance(220, 160, Image.SCALE_SMOOTH);
-                        return new ImageIcon(scaledImage);
-                    } else {
-                        System.err.println("✗ Không đọc được ảnh: " + resourcePath);
-                        return null;
-                    }
+                    // --- FIX ENDS HERE ---
+
+                    System.err.println("✗ File not found or invalid: " + imagePath);
+                    return null;
+
                 } catch (Exception e) {
-                    System.err.println("✗ Lỗi khi tải ảnh " + imagePath + ": " + e.getMessage());
+                    System.err.println("✗ Error loading image: " + e.getMessage());
                     return null;
                 }
             }
-            
+
             @Override
             protected void done() {
                 try {
                     ImageIcon icon = get();
                     if (icon != null) {
                         imgLabel.setIcon(icon);
-                        imgLabel.setText(null);
+                        imgLabel.setText(null); // Remove text/emoji
                     } else {
-                        String emoji = getEmojiForCategory(product.getCategory());
-                        imgLabel.setText(emoji);
-                        imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+                        showEmoji();
                     }
                 } catch (Exception e) {
-                    System.err.println("Lỗi trong done(): " + e.getMessage());
-                    String emoji = getEmojiForCategory(product.getCategory());
-                    imgLabel.setText(emoji);
-                    imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+                    showEmoji();
                 }
             }
         };
         worker.execute();
     }
+
+// Helper method to keep code clean
+private ImageIcon scaleImage(BufferedImage originalImage) {
+    Image scaledImage = originalImage.getScaledInstance(220, 160, Image.SCALE_SMOOTH);
+    return new ImageIcon(scaledImage);
+}
+
+// Helper method to show Emoji
+private void showEmoji() {
+    String emoji = getEmojiForCategory(product.getCategory());
+    imgLabel.setIcon(null);
+    imgLabel.setText(emoji);
+    imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+}
     
     // ============ HELPER ============
     
@@ -247,6 +270,10 @@ public class ProductCard extends RoundedPanel {
     
     public RoundedButton getAddButton() {
         return addBtn;
+    }
+
+    public RoundedButton getEditButton() {
+        return editBtn;
     }
     
     // ============ TEST MAIN ============

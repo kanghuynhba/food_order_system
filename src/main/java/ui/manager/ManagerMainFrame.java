@@ -41,7 +41,7 @@ public class ManagerMainFrame extends JFrame {
         contentPanel.add(new DashboardPanel(), "dashboard");
         contentPanel.add(new IngredientPanel(), "ingredients");
         contentPanel.add(new StaffPanel(), "staff");
-        contentPanel.add(new ProductPanel(), "products");
+        contentPanel.add(new ProductPanel(this), "products");
         contentPanel.add(new ReportSalesPanel(), "sales");
         contentPanel.add(new ReportEmployeePanel(), "employee");
         contentPanel.add(new ReportIngredientPanel(), "inventory");

@@ -109,7 +109,7 @@ public class CustomerMainFrame extends JFrame implements MenuListener {
         
         cartItems.add(newItem);
         cartPanel.refreshCart();
-        showNotification("✅ Đã thêm vào giỏ hàng!");
+        showNotification("Đã thêm vào giỏ hàng!");
     }
     
     public void removeFromCart(CartItem item) { cartItems.remove(item);
