@@ -46,7 +46,6 @@ public class UIConstants {
     
     // ============ COLORS - ORDER STATUS (Theo DB) ============
     public static final Color COLOR_ORDER_NEW = new Color(33, 150, 243);        // Blue
-    public static final Color COLOR_ORDER_CONFIRMED = new Color(156, 39, 176);  // Purple
     public static final Color COLOR_ORDER_PREPARING = new Color(255, 152, 0);   // Orange
     public static final Color COLOR_ORDER_COOKING = new Color(255, 87, 34);     // Deep Orange
     public static final Color COLOR_ORDER_READY = new Color(76, 175, 80);       // Green
@@ -181,12 +180,11 @@ public class UIConstants {
     public static Color getOrderStatusColor(int status) {
         return switch (status) {
             case 0 -> COLOR_ORDER_NEW;          // New
-            case 1 -> COLOR_ORDER_CONFIRMED;    // Confirmed
-            case 2 -> COLOR_ORDER_PREPARING;    // Preparing
-            case 3 -> COLOR_ORDER_COOKING;      // Cooking
-            case 4 -> COLOR_ORDER_READY;        // Ready
-            case 5 -> COLOR_ORDER_COMPLETED;    // Completed
-            case 6 -> COLOR_ORDER_CANCELLED;    // Cancelled
+            case 1 -> COLOR_ORDER_PREPARING;    // Preparing
+            case 2 -> COLOR_ORDER_COOKING;      // Cooking
+            case 3 -> COLOR_ORDER_READY;        // Ready
+            case 4 -> COLOR_ORDER_COMPLETED;    // Completed
+            case 5 -> COLOR_ORDER_CANCELLED;    // Cancelled
             default -> COLOR_GRAY;
         };
     }

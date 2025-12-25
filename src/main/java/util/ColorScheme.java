@@ -54,7 +54,6 @@ public class ColorScheme {
     // ============ ORDER STATUS COLORS ============
     
     public static final Color ORDER_NEW = UIConstants.COLOR_ORDER_NEW;
-    public static final Color ORDER_CONFIRMED = UIConstants.COLOR_ORDER_CONFIRMED;
     public static final Color ORDER_PREPARING = UIConstants.COLOR_ORDER_PREPARING;
     public static final Color ORDER_COOKING = UIConstants.COLOR_ORDER_COOKING;
     public static final Color ORDER_READY = UIConstants.COLOR_ORDER_READY;

@@ -29,6 +29,7 @@ public class ProductForm extends BaseForm {
     public ProductForm(Frame parent) {
         super(parent, "Add New Product");
         this.productService = ProductService.getInstance();
+        btnDelete.setVisible(true);
         initComponent();
     }
 
@@ -166,6 +167,18 @@ public class ProductForm extends BaseForm {
             } else {
                 JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
             }
+        }
+    }
+    @Override 
+    protected void onDelete() {
+        boolean success=productService.deleteProduct(product.getProductId());
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Deleted successfully!");
+            // Set isSaved to true so the parent table knows to refresh
+            this.isSaved = true; 
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to delete.");
         }
     }
 }

@@ -52,7 +52,6 @@ public class ProductPanel extends JPanel {
     private JTextField searchField;
     private Timer cardLoadTimer; 
     private RoundedButton addProductBtn;
-    private RoundedButton refreshBtn;
 
     
     public ProductPanel(ManagerMainFrame parentFrame) {
@@ -108,20 +107,16 @@ public class ProductPanel extends JPanel {
         addProductBtn.setPreferredSize(new Dimension(180, 38));
         addProductBtn.setMaximumSize(new Dimension(200, 38));
         addProductBtn.addActionListener(e -> {
-            new ProductForm(parentFrame).setVisible(true);
+            ProductForm form=new ProductForm(parentFrame);
+            form.setVisible(true);
+
+            if(form.isSaved()) {
+                loadProducts();
+            }
             
         });
         controlsPanel.add(addProductBtn);
 
-        refreshBtn = new RoundedButton("Refresh", 8);
-        refreshBtn.setBackground(GREEN);
-        refreshBtn.setPreferredSize(new Dimension(180, 38));
-        refreshBtn.setMaximumSize(new Dimension(200, 38));
-        refreshBtn.addActionListener(e -> {
-            loadProducts();
-        });
-        controlsPanel.add(refreshBtn);
-        
         headerPanel.add(title, BorderLayout.WEST);
         headerPanel.add(controlsPanel, BorderLayout.EAST);
         

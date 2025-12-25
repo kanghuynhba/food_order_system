@@ -1,11 +1,19 @@
 package ui.manager;
 
 import entity.Ingredient;
+
 import service.IngredientService;
+
+import form.IngredientForm;
+
+import ui.components.RoundedButton;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class IngredientPanel extends JPanel {
@@ -20,9 +28,11 @@ public class IngredientPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private JComboBox<String> statusFilter;
+    private List<Ingredient> ingredients;
     
     public IngredientPanel() {
         ingredientService = IngredientService.getInstance();
+        ingredients=ingredientService.getAllIngredients();
         initComponents();
         loadData();
     }
@@ -60,13 +70,13 @@ public class IngredientPanel extends JPanel {
         leftPanel.add(subtitle);
         
         // Buttons
-        JButton addBtn = new JButton("➕ Add Ingredient");
-        addBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        addBtn.setForeground(Color.WHITE);
+        RoundedButton addBtn = new RoundedButton("Add Ingredient");
         addBtn.setBackground(ORANGE);
-        addBtn.setFocusPainted(false);
-        addBtn.setBorderPainted(false);
-        addBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        addBtn.setPreferredSize(new Dimension(180, 38));
+        addBtn.setMaximumSize(new Dimension(200, 38));
+        addBtn.addActionListener(e -> {
+            openIngredientForm(null);
+        });
         
         panel.add(leftPanel, BorderLayout.WEST);
         panel.add(addBtn, BorderLayout.EAST);
@@ -97,6 +107,21 @@ public class IngredientPanel extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.getTableHeader().setBackground(new Color(250, 250, 250));
         table.setSelectionBackground(new Color(255, 152, 0, 50));
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Check for DOUBLE CLICK (Standard for editing)
+                if (e.getClickCount() == 2) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Get the employee object from our list using the row index
+                        Ingredient ingredient = ingredients.get(selectedRow);
+                        openIngredientForm(ingredient); // Edit Mode
+                    }
+                }
+            }
+        });
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
@@ -116,44 +141,18 @@ public class IngredientPanel extends JPanel {
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         searchField.setPreferredSize(new Dimension(200, 35));
         
-        JLabel searchIcon = new JLabel("🔍 Search ingredients...");
+        JLabel searchIcon = new JLabel(" Search ingredients...");
         searchIcon.setForeground(Color.GRAY);
         searchIcon.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         
-        // Status filter
-        statusFilter = new JComboBox<>(new String[]{
-            "All Status", "All Categories", "All Warehouses"
-        });
-        statusFilter.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        statusFilter.setPreferredSize(new Dimension(150, 35));
-        
-        // Buttons
-        JButton adjustBtn = new JButton("⚖️ Adjust Stock");
-        adjustBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        adjustBtn.setPreferredSize(new Dimension(120, 35));
-        
-        JButton reorderBtn = new JButton("🎯 Set Reorder Point");
-        reorderBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        reorderBtn.setPreferredSize(new Dimension(150, 35));
-        
-        JButton exportBtn = new JButton("📥 Export CSV");
-        exportBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        exportBtn.setPreferredSize(new Dimension(120, 35));
-        
+      
         panel.add(searchField);
-        panel.add(statusFilter);
-        panel.add(statusFilter);
-        panel.add(statusFilter);
-        panel.add(adjustBtn);
-        panel.add(reorderBtn);
-        panel.add(exportBtn);
-        
+       
         return panel;
     }
     
     private void loadData() {
         tableModel.setRowCount(0);
-        List<Ingredient> ingredients = ingredientService.getAllIngredients();
         
         for (Ingredient ing : ingredients) {
             String status = getStatusLabel(ing.getStatus());
@@ -167,6 +166,15 @@ public class IngredientPanel extends JPanel {
                 status,
                 "2 hours ago"
             });
+        }
+    }
+
+    private void openIngredientForm(Ingredient ingredient) {
+        IngredientForm form = new IngredientForm((JFrame) SwingUtilities.getWindowAncestor(this), ingredient);
+        form.setVisible(true);
+        
+        if (form.isSaved()) {
+            loadData(); 
         }
     }
     

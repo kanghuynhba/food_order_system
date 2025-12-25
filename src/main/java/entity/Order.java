@@ -203,28 +203,24 @@ public class Order {
         return status == 0;
     }
     
-    public boolean isConfirmed() {
+    public boolean isPreparing() {
         return status == 1;
     }
     
-    public boolean isPreparing() {
+    public boolean isCooking() {
         return status == 2;
     }
     
-    public boolean isCooking() {
+    public boolean isReady() {
         return status == 3;
     }
     
-    public boolean isReady() {
+    public boolean isCompleted() {
         return status == 4;
     }
     
-    public boolean isCompleted() {
-        return status == 5;
-    }
-    
     public boolean isCancelled() {
-        return status == 6;
+        return status == 5;
     }
     
     // ============ FORMATTING METHODS (FIXED) ============
@@ -247,9 +243,6 @@ public class Order {
     
     /**
      * Get formatted date and time (dd/MM/yyyy HH:mm)
-     * Example: "29/09/2024 10:30"
-     * 
-     * ✅ FIXED: Added this missing method
      */
     public String getFormattedDateTime() {
         if (createdAt == null) return "";

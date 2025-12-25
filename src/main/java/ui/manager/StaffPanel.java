@@ -1,11 +1,19 @@
 package ui.manager;
 
 import entity.Employee;
+
 import service.EmployeeService;
+
+import form.EmployeeForm;
+
+import ui.components.RoundedButton;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class StaffPanel extends JPanel {
@@ -17,9 +25,11 @@ public class StaffPanel extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField searchField;
+    private List<Employee> employees;
     
     public StaffPanel() {
         employeeService = EmployeeService.getInstance();
+        employees=employeeService.getAllEmployees();
         initComponents();
         loadData();
     }
@@ -57,15 +67,14 @@ public class StaffPanel extends JPanel {
         leftPanel.add(subtitle);
         
         // Button
-        JButton createBtn = new JButton("➕ Create Staff");
-        createBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        createBtn.setForeground(Color.WHITE);
+        RoundedButton createBtn = new RoundedButton("Create Staff", 8);
         createBtn.setBackground(ORANGE);
-        createBtn.setFocusPainted(false);
-        createBtn.setBorderPainted(false);
-        createBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        createBtn.setPreferredSize(new Dimension(130, 40));
-        
+        createBtn.setPreferredSize(new Dimension(180, 38));
+        createBtn.setMaximumSize(new Dimension(200, 38));
+        createBtn.addActionListener(e -> {
+            openEmployeeForm(null);
+        });
+                
         panel.add(leftPanel, BorderLayout.WEST);
         panel.add(createBtn, BorderLayout.EAST);
         
@@ -80,7 +89,7 @@ public class StaffPanel extends JPanel {
         panel.add(createFilterPanel(), BorderLayout.NORTH);
         
         // Table
-        String[] columns = {"Staff", "Role", "CA", "Status", "Contact", "Actions"};
+        String[] columns = {"Staff", "Role", "Status", "Phone"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -94,6 +103,21 @@ public class StaffPanel extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.getTableHeader().setBackground(new Color(250, 250, 250));
         table.setSelectionBackground(new Color(255, 152, 0, 50));
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Check for DOUBLE CLICK (Standard for editing)
+                if (e.getClickCount() == 2) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        // Get the employee object from our list using the row index
+                        Employee emp = employees.get(selectedRow);
+                        openEmployeeForm(emp); // Edit Mode
+                    }
+                }
+            }
+        });
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
@@ -129,29 +153,35 @@ public class StaffPanel extends JPanel {
     
     private void loadData() {
         tableModel.setRowCount(0);
-        List<Employee> employees = employeeService.getAllEmployees();
         
         for (Employee emp : employees) {
             String roleIcon = getRoleIcon(emp.getRole());
             String statusBadge = emp.isActive() ? "Active" : "Inactive";
             
             tableModel.addRow(new Object[]{
-                emp.getName() + "\nID: EMP" + String.format("%03d", emp.getEmployeeId()),
-                roleIcon + " " + emp.getRoleName(),
-                "A",
-                statusBadge,
-                emp.getPhone() != null ? emp.getPhone() : "N/A",
-                "✏️ 👁️ 🗑️"
+                emp.getName(),
+                emp.getRoleName(),
+                emp.isActive() ? "Active" : "Inactive",
+                emp.getPhone()            
             });
+        }
+    }
+
+    private void openEmployeeForm(Employee emp) {
+        EmployeeForm form = new EmployeeForm((JFrame) SwingUtilities.getWindowAncestor(this), emp);
+        form.setVisible(true);
+        
+        if (form.isSaved()) {
+            loadData(); 
         }
     }
     
     private String getRoleIcon(int role) {
         return switch (role) {
-            case 1 -> "👨‍🍳";
-            case 2 -> "💵";
-            case 3 -> "👔";
-            default -> "👤";
+            case 1 -> "Chef";
+            case 2 -> "Cashier";
+            case 3 -> "Manager";
+            default -> "Employee";
         };
     }
 }

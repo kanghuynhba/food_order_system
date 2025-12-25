@@ -12,6 +12,7 @@ public abstract class BaseForm extends JDialog {
     
     // Status to track if user clicked Save
     protected boolean isSaved = false; 
+    protected JButton btnDelete;
 
     public BaseForm(Frame parent, String title) {
         super(parent, title, true); // Modal
@@ -28,7 +29,32 @@ public abstract class BaseForm extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
         // 2. Bottom Panel for Buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottomPanel = new JPanel(new BorderLayout()); 
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        btnDelete=new JButton("Delete");
+        btnDelete.setBackground(new Color(255, 82, 82)); // Red color
+        btnDelete.setForeground(Color.WHITE);
+        btnDelete.setVisible(false);
+
+        btnDelete.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                this, 
+                "Are you sure you want to delete this item?\nThis action cannot be undone.", 
+                "Confirm Delete", 
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                onDelete();
+                dispose();
+            }
+        });
+
+        bottomPanel.add(btnDelete, BorderLayout.WEST);
+
+        JPanel rightBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         JButton btnSave = new JButton("Save");
         JButton btnCancel = new JButton("Cancel");
         
@@ -42,10 +68,12 @@ public abstract class BaseForm extends JDialog {
         });
         
         btnCancel.addActionListener(e -> dispose());
-        
-        buttonPanel.add(btnSave);
-        buttonPanel.add(btnCancel);
-        add(buttonPanel, BorderLayout.SOUTH);
+
+        rightBtnPanel.add(btnSave);
+        rightBtnPanel.add(btnCancel);
+        bottomPanel.add(rightBtnPanel, BorderLayout.EAST);
+
+        add(bottomPanel, BorderLayout.SOUTH);
         
         // Default Size
         setSize(1000, 600);
@@ -97,7 +125,9 @@ public abstract class BaseForm extends JDialog {
 
     // Abstract methods that Children MUST implement
     protected abstract void onSave();
-    
+
+    protected abstract void onDelete();   
+
     // Optional: Children can override this to add validation logic
     protected boolean validateForm() { return true; }
     

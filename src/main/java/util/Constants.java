@@ -50,7 +50,6 @@ public class Constants {
     // ============ ORDER STATUS ============
     
     public static final int ORDER_STATUS_NEW = AppConfig.ORDER_STATUS_NEW;
-    public static final int ORDER_STATUS_CONFIRMED = AppConfig.ORDER_STATUS_CONFIRMED;
     public static final int ORDER_STATUS_PREPARING = AppConfig.ORDER_STATUS_PREPARING;
     public static final int ORDER_STATUS_COOKING = AppConfig.ORDER_STATUS_COOKING;
     public static final int ORDER_STATUS_READY = AppConfig.ORDER_STATUS_READY;

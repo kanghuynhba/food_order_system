@@ -248,7 +248,7 @@ public class OrdersPanel extends JPanel {
         buttonsPanel.setBackground(Color.WHITE);
         
         // Buttons based on status
-        if (order.getStatus() == 0 || order.getStatus() == 1) { // New or Confirmed
+        if (order.getStatus() == 0) { // New 
             RoundedButton sendBtn = new RoundedButton("Send to chef", 6);
             sendBtn.setBackground(GREEN);
             sendBtn.setPreferredSize(new Dimension(120, 32));
@@ -280,12 +280,11 @@ public class OrdersPanel extends JPanel {
     private String getStatusBadge(int status) {
         return switch (status) {
             case 0 -> "New Order";
-            case 1 -> "Confirmed";
-            case 2 -> "Preparing";
-            case 3 -> "Cooking";
-            case 4 -> "Ready";
-            case 5 -> "Completed";
-            case 6 -> "Cancelled";
+            case 1 -> "Preparing";
+            case 2 -> "Cooking";
+            case 3 -> "Ready";
+            case 4 -> "Completed";
+            case 5 -> "Cancelled";
             default -> "Unknown";
         };
     }

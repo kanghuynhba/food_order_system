@@ -36,7 +36,7 @@ public class ChefDashboardPanel extends JPanel {
     }
 
     private void initComponents() {
-        // Left panel - Pending orders (NEW + CONFIRMED)
+        // Left panel - Pending orders (NEW)
         pendingOrdersPanel = new PendingOrdersPanel(this, chef);
         
         // Right panel - Cooking orders (PREPARING + COOKING)
@@ -139,13 +139,11 @@ public class ChefDashboardPanel extends JPanel {
     
     private void loadOrders() {
         try {
-            // Load pending orders (NEW + CONFIRMED)
+            // Load pending orders (NEW)
             List<Order> allPending = new ArrayList<>();
             List<Order> newOrders = orderDAO.getByStatus(AppConfig.ORDER_STATUS_NEW);
-            List<Order> confirmedOrders = orderDAO.getByStatus(AppConfig.ORDER_STATUS_CONFIRMED);
             
             if (newOrders != null) allPending.addAll(newOrders);
-            if (confirmedOrders != null) allPending.addAll(confirmedOrders);
             
             pendingOrdersPanel.loadOrders(allPending);
             

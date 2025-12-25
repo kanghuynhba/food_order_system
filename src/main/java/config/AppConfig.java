@@ -58,12 +58,11 @@ public class AppConfig {
     
     // ============ ORDER STATUS (Theo DB) ============
     public static final int ORDER_STATUS_NEW = 0;           // Đơn mới từ customer
-    public static final int ORDER_STATUS_CONFIRMED = 1;     // Cashier đã xác nhận
-    public static final int ORDER_STATUS_PREPARING = 2;     // Đang chuẩn bị
-    public static final int ORDER_STATUS_COOKING = 3;       // Đang nấu
-    public static final int ORDER_STATUS_READY = 4;         // Sẵn sàng
-    public static final int ORDER_STATUS_COMPLETED = 5;     // Hoàn thành
-    public static final int ORDER_STATUS_CANCELLED = 6;     // Đã hủy
+    public static final int ORDER_STATUS_PREPARING = 1;     // Đang chuẩn bị
+    public static final int ORDER_STATUS_COOKING = 2;       // Đang nấu
+    public static final int ORDER_STATUS_READY = 3;         // Sẵn sàng
+    public static final int ORDER_STATUS_COMPLETED = 4;     // Hoàn thành
+    public static final int ORDER_STATUS_CANCELLED = 5;     // Đã hủy
     
     // Order status names
     public static final String[] ORDER_STATUS_NAMES = {
