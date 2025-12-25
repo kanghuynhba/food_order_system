@@ -1,6 +1,7 @@
 package ui.cashier;
 
 import entity.User;
+import entity.Product;
 import ui.components.RoundedButton;
 import util.ColorScheme;
 import config.UIConstants;
@@ -273,7 +274,7 @@ public class CashierMainFrame extends JFrame {
         if (currentPanel instanceof OrdersPanel) {
             ((OrdersPanel) currentPanel).refreshOrders();
         } else if (currentPanel instanceof MenuPOSPanel) {
-            ((MenuPOSPanel) currentPanel).refreshProducts();
+            new MenuPOSPanel(this);
         }
         
         showNotification("✅ Đã làm mới dữ liệu!");
@@ -330,7 +331,8 @@ public class CashierMainFrame extends JFrame {
     private String formatCurrency(double amount) {
         return String.format("%,.0fđ", amount);
     }
-    
+     
+        
     // ============ MAIN - FOR TESTING ============
     
     public static void main(String[] args) {

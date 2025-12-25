@@ -1,0 +1,352 @@
+-- ===================================================
+-- FAST FOOD RESTAURANT MANAGEMENT SYSTEM - DATABASE
+-- ===================================================
+-- Author: Nguyễn Trương Quốc Huân & Huỳnh Bá Khang
+-- Version: 1.0.0
+-- Date: 2025
+-- ===================================================
+
+-- Drop database if exists and create new one
+DROP DATABASE IF EXISTS fast_food_db;
+CREATE DATABASE fast_food_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE fast_food_db;
+
+-- ===================================================
+-- 1. USERS TABLE
+-- ===================================================
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    role INT NOT NULL DEFAULT 4 COMMENT '0:Admin, 1:Manager, 2:Cashier, 3:Chef, 4:Customer',
+    status INT NOT NULL DEFAULT 1 COMMENT '0:Inactive, 1:Active, 2:Locked',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_email (email),
+    INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 2. EMPLOYEES TABLE
+-- ===================================================
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    date_of_birth DATE,
+    gender ENUM('Male', 'Female', 'Other') DEFAULT 'Male',
+    avatar_url VARCHAR(255),
+    role INT NOT NULL DEFAULT 2 COMMENT '1:Chef, 2:Cashier, 3:Manager',
+    salary DECIMAL(10,2) DEFAULT 0,
+    status INT NOT NULL DEFAULT 1 COMMENT '0:Inactive, 1:Active',
+    hired_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    INDEX idx_email (email),
+    INDEX idx_role (role),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 3. CUSTOMERS TABLE
+-- ===================================================
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_phone (phone_number),
+    INDEX idx_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 4. PRODUCTS TABLE
+-- ===================================================
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    image_url VARCHAR(255),
+    available INT NOT NULL DEFAULT 1 COMMENT '0:Unavailable, 1:Available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_category (category),
+    INDEX idx_available (available)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 5. ingredientS (INGREDIENTS) TABLE
+-- ===================================================
+CREATE TABLE ingredients (
+    ingredient_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0,
+    unit VARCHAR(20) NOT NULL,
+    expiry_date DATE,
+    supplier VARCHAR(100),
+    status VARCHAR(20) NOT NULL DEFAULT 'available' COMMENT 'available, low, out_of_stock, expired',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_status (status),
+    INDEX idx_expiry_date (expiry_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 6. ORDERS TABLE
+-- ===================================================
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20),
+    total_amount DECIMAL(10,2) NOT NULL,
+    pay_method INT NOT NULL DEFAULT 0 COMMENT '0:Cash, 1:Transfer, 2:Card, 3:MoMo, 4:VNPay',
+    payment_status INT NOT NULL DEFAULT 0 COMMENT '0:Unpaid, 1:Paid, 2:Refunded, 3:Failed',
+    status INT NOT NULL DEFAULT 0 COMMENT '0:New, 1:Confirmed, 2:Preparing, 3:Cooking, 4:Ready, 5:Completed, 6:Cancelled',
+    assigned_chef_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (assigned_chef_id) REFERENCES employees(employee_id) ON DELETE SET NULL,
+    INDEX idx_status (status),
+    INDEX idx_payment_status (payment_status),
+    INDEX idx_created_at (created_at),
+    INDEX idx_phone (phone_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 7. ORDER_ITEMS TABLE
+-- ===================================================
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE RESTRICT,
+    INDEX idx_order_id (order_id),
+    INDEX idx_product_id (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- 8. PAYMENTS TABLE
+-- ===================================================
+CREATE TABLE payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    method INT NOT NULL DEFAULT 0 COMMENT '0:Cash, 1:Transfer, 2:Card, 3:MoMo, 4:VNPay',
+    status INT NOT NULL DEFAULT 1 COMMENT '0:Failed, 1:Success, 2:Pending',
+    notes TEXT,
+    paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    INDEX idx_order_id (order_id),
+    INDEX idx_status (status),
+    INDEX idx_paid_at (paid_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================================
+-- INSERT SAMPLE DATA
+-- ===================================================
+
+-- Insert Users (password: 123456 for all)
+INSERT INTO users (username, password, email, role, status) VALUES
+('manager01', '123456', 'manager@fastfood.com', 1, 1),
+('cashier01', '123456', 'cashier1@fastfood.com', 2, 1),
+('cashier02', '123456', 'cashier2@fastfood.com', 2, 1),
+('chef01', '123456', 'chef1@fastfood.com', 3, 1),
+('chef02', '123456', 'chef2@fastfood.com', 3, 1),
+('customer01', '123456', 'customer@gmail.com', 4, 1);
+
+-- Insert Employees
+INSERT INTO employees (user_id, name, email, phone, role, salary, status, hired_date) VALUES
+(2, 'John Doe', 'manager@fastfood.com', '0901234567', 3, 15000000, 1, '2024-01-01'),
+(3, 'Sarah Smith', 'cashier1@fastfood.com', '0901234568', 2, 8000000, 1, '2024-02-01'),
+(4, 'Mike Johnson', 'cashier2@fastfood.com', '0901234569', 2, 8000000, 1, '2024-02-15'),
+(5, 'Emily Brown', 'chef1@fastfood.com', '0901234570', 1, 10000000, 1, '2024-01-15'),
+(6, 'David Lee', 'chef2@fastfood.com', '0901234571', 1, 10000000, 1, '2024-03-01');
+
+-- Insert Customers
+INSERT INTO customers (name, phone_number, email) VALUES
+('Nguyễn Văn A', '0905999999', 'nguyenvana@gmail.com'),
+('Trần Thị B', '0905888888', 'tranthib@gmail.com'),
+('Lê Văn C', '0905777777', 'levanc@gmail.com');
+
+-- Insert Products
+INSERT INTO products (name, description, price, category, image_url, available) VALUES
+-- Burgers
+('Big Burger', 'Burger gà với phô mai cheddar', 89000, 'Burger', 'images/burger1.jpg', 1),
+('Double Cheese Burger', 'Burger đôi với phô mai đặc biệt', 119000, 'Burger', 'images/burger2.jpg', 1),
+('Combo Burger Set', 'Burger + Khoai tây + Pepsi', 149000, 'Combo', 'images/combo1.jpg', 1),
+
+-- Pizza
+('Pizza Pepperoni', 'Pizza truyền thống với xúc xích', 129000, 'Pizza', 'images/pizza1.jpg', 1),
+('Family Pizza Combo', 'Pizza cỡ lớn + 2 Pepsi', 299000, 'Pizza', 'images/pizza2.jpg', 1),
+
+-- Chicken
+('Gà Rán Giòn (6 pcs)', 'Gà rán giòn tan với bột tẩm đặc biệt', 65000, 'Chicken', 'images/chicken1.jpg', 1),
+('Fried Chicken Bucket (6 pcs)', 'Thùng gà rán giòn 6 miếng', 159000, 'Chicken', 'images/chicken2.jpg', 1),
+
+-- Sides
+('Khoai Tây Chiên', 'Khoai tây chiên giòn size lớn', 45000, 'Sides', 'images/fries.jpg', 1),
+('Nuggets (6 pcs)', 'Nuggets gà chiên giòn', 55000, 'Sides', 'images/nuggets.jpg', 1),
+
+-- Drinks
+('Pepsi Cola', 'Nước ngọt có ga size L', 25000, 'Drinks', 'images/pepsi.jpg', 1),
+('Coca Cola', 'Nước ngọt có ga size L', 25000, 'Drinks', 'images/coca.jpg', 1),
+('Trà đá', 'Trà đá truyền thống', 15000, 'Drinks', 'images/tea.jpg', 1);
+
+-- Insert ingredients (Ingredients)
+INSERT INTO ingredients (name, quantity, unit, expiry_date, supplier, status) VALUES
+('Cà chua', 45, 'kg', '2025-12-31', 'Công ty ABC', 'available'),
+('Hành tây', 8, 'kg', '2025-12-31', 'Công ty ABC', 'low'),
+('Thịt bò', 0, 'kg', '2025-11-30', 'Công ty XYZ', 'out_of_stock'),
+('Sữa tươi', 25, 'lít', '2025-12-15', 'Công ty Vinamilk', 'available'),
+('Tiêu đen', 2, 'kg', '2026-01-31', 'Công ty ABC', 'low');
+
+-- Insert Sample Orders
+INSERT INTO orders (customer_name, phone_number, total_amount, pay_method, payment_status, status, created_at) VALUES
+('Nguyễn Văn A', '0905999999', 307000, 0, 1, 5, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('Trần Thị B', '0905888888', 317700, 1, 1, 5, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('Lê Văn C', '0905777777', 149000, 0, 1, 4, NOW()),
+('Nguyễn Văn A', '0905999999', 129000, 1, 1, 3, NOW());
+
+-- Insert Order Items for the orders
+INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price, subtotal) VALUES
+-- Order 1
+(1, 2, 'Double Cheese Burger', 2, 119000, 238000),
+(1, 10, 'Pepsi Cola', 1, 25000, 25000),
+(1, 8, 'Khoai Tây Chiên', 1, 45000, 45000),
+-- Order 2
+(2, 1, 'Big Burger', 2, 89000, 178000),
+(2, 6, 'Gà Rán Giòn (6 pcs)', 2, 65000, 130000),
+(2, 10, 'Pepsi Cola', 1, 25000, 25000),
+-- Order 3
+(3, 3, 'Combo Burger Set', 1, 149000, 149000),
+-- Order 4
+(4, 4, 'Pizza Pepperoni', 1, 129000, 129000);
+
+-- Insert Payments
+INSERT INTO payments (order_id, amount, method, status, notes) VALUES
+(1, 307000, 0, 1, 'Thanh toán tiền mặt'),
+(2, 317700, 1, 1, 'Chuyển khoản ngân hàng'),
+(3, 149000, 0, 1, 'Thanh toán tiền mặt'),
+(4, 129000, 1, 1, 'Chuyển khoản MoMo');
+
+-- ===================================================
+-- CREATE VIEWS FOR REPORTING
+-- ===================================================
+
+-- View: Daily Sales Summary
+CREATE VIEW vw_daily_sales AS
+SELECT 
+    DATE(created_at) as sale_date,
+    COUNT(*) as total_orders,
+    SUM(total_amount) as total_revenue,
+    AVG(total_amount) as avg_order_value
+FROM orders
+WHERE status != 6  -- Exclude cancelled orders
+GROUP BY DATE(created_at);
+
+-- View: Product Sales Ranking
+CREATE VIEW vw_product_sales AS
+SELECT 
+    p.product_id,
+    p.name as product_name,
+    p.category,
+    COUNT(oi.order_item_id) as times_ordered,
+    SUM(oi.quantity) as total_quantity_sold,
+    SUM(oi.subtotal) as total_revenue
+FROM products p
+LEFT JOIN order_items oi ON p.product_id = oi.product_id
+GROUP BY p.product_id, p.name, p.category
+ORDER BY total_revenue DESC;
+
+-- View: Low Stock ingredients
+CREATE VIEW vw_low_stock_ingredients AS
+SELECT 
+    ingredient_id,
+    name,
+    quantity,
+    unit,
+    expiry_date,
+    status
+FROM ingredients
+WHERE quantity < 10 OR status IN ('low', 'out_of_stock')
+ORDER BY quantity ASC;
+
+-- ===================================================
+-- CREATE STORED PROCEDURES
+-- ===================================================
+
+DELIMITER //
+
+-- Procedure: Calculate total revenue for a date range
+CREATE PROCEDURE sp_get_revenue_by_daterange(
+    IN start_date DATE,
+    IN end_date DATE
+)
+BEGIN
+    SELECT 
+        DATE(created_at) as order_date,
+        COUNT(*) as total_orders,
+        SUM(total_amount) as daily_revenue
+    FROM orders
+    WHERE DATE(created_at) BETWEEN start_date AND end_date
+        AND status != 6  -- Exclude cancelled
+    GROUP BY DATE(created_at)
+    ORDER BY order_date;
+END //
+
+-- Procedure: Get top selling products
+CREATE PROCEDURE sp_get_top_products(IN limit_count INT)
+BEGIN
+    SELECT 
+        p.product_id,
+        p.name,
+        p.price,
+        p.category,
+        SUM(oi.quantity) as total_sold,
+        SUM(oi.subtotal) as total_revenue
+    FROM products p
+    JOIN order_items oi ON p.product_id = oi.product_id
+    GROUP BY p.product_id
+    ORDER BY total_sold DESC
+    LIMIT limit_count;
+END //
+
+DELIMITER ;
+
+-- ===================================================
+-- CREATE INDEXES FOR PERFORMANCE
+-- ===================================================
+
+CREATE INDEX idx_orders_date_status ON orders(created_at, status);
+CREATE INDEX idx_order_items_composite ON order_items(order_id, product_id);
+CREATE INDEX idx_products_category_available ON products(category, available);
+
+-- ===================================================
+-- GRANT PRIVILEGES (Optional - for production)
+-- ===================================================
+
+-- CREATE USER 'fastfood_user'@'localhost' IDENTIFIED BY 'fastfood_password';
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON fastfood_db.* TO 'fastfood_user'@'localhost';
+-- FLUSH PRIVILEGES;
+
+-- ===================================================
+-- END OF SCRIPT
+-- ===================================================
+
+SELECT 'Database created successfully!' as Status;
+SELECT COUNT(*) as TotalUsers FROM users;
+SELECT COUNT(*) as TotalProducts FROM products;
+SELECT COUNT(*) as TotalOrders FROM orders;

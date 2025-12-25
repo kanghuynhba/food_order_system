@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class IngredientDAO extends BaseDAO<Ingredient> {
     
-    private static final String TABLE = "materials";
+    private static final String TABLE = "ingredients";
     
     // ============ CREATE ============
     

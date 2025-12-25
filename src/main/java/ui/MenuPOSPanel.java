@@ -1,4 +1,4 @@
-package ui.customer;
+package ui.cashier;
 
 import listener.MenuListener;
 import entity.CartItem;
@@ -13,79 +13,60 @@ import ui.components.CheckoutDialog;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
-
-public class CustomerMainFrame extends JFrame implements MenuListener {
+import java.util.List; 
+import javax.swing.border.EmptyBorder;
+/**
+//  * MenuPOSPanel - POS Menu with cart sidebar (Image 9 style)
+//  * Path: Source Packages/ui/cashier/MenuPOSPanel.java
+//  * 
+//  * Features:
+//  * - Product grid with categories
+//  * - Right sidebar cart
+//  * - Add/remove items
+//  * - Place order
+//  * 
+//  * @author Nguyễn Trường Quốc Huân & Huỳnh Bá Khang
+//  */
+public class MenuPOSPanel extends JPanel implements MenuListener {
+    
+    // UI Components
+    private CashierMainFrame mainFrame;
     private MenuPanel menuPanel;
     private CartPanel cartPanel;
     private List<CartItem> cartItems;
+
     
-    public CustomerMainFrame() {
+    // ============ CONSTRUCTOR ============
+    
+    public MenuPOSPanel(CashierMainFrame mainFrame) {
+        this.mainFrame=mainFrame;
         cartItems = new ArrayList<>();
-        
-        setTitle("FastFood Pro - Đặt hàng");
-        setSize(UIConstants.SIZE_CUSTOMER);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        menuPanel = new MenuPanel(this);
+        cartPanel = new CartPanel(this);
         
         initComponents();
-    }
+   }
+    
+    // ============ INITIALIZATION ============
     
     private void initComponents() {
-        // Main container
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(ColorScheme.BG_SECONDARY);
+        setLayout(new BorderLayout(0, 0));
+        setBackground(Color.WHITE);
         
-        // Header
-        JPanel headerPanel = createHeader();
+        // Left: Products + Categories
+        JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
+        leftPanel.setBackground(new Color(250, 250, 250));
+        leftPanel.setBorder(new EmptyBorder(15, 15, 15, 0));
         
-        // Content area with menu and cart
-        JPanel contentPanel = new JPanel(new BorderLayout(0, 0));
-        contentPanel.setBackground(ColorScheme.BG_SECONDARY);
+        leftPanel.add(menuPanel, BorderLayout.CENTER);
         
-        // Left: Menu panel
-        menuPanel = new MenuPanel(this);
+        // Right: Cart sidebar
+        JPanel rightPanel = cartPanel;
         
-        // Right: Cart panel
-        cartPanel = new CartPanel(this);
-        cartPanel.setPreferredSize(new Dimension(380, 0));
-        
-        contentPanel.add(menuPanel, BorderLayout.CENTER);
-        contentPanel.add(cartPanel, BorderLayout.EAST);
-        
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-        
-        add(mainPanel);
+        add(leftPanel, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.EAST);
     }
-    
-    private JPanel createHeader() {
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(ColorScheme.PRIMARY);
-        headerPanel.setPreferredSize(new Dimension(0, 70));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        
-        // Left: Logo and title
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
-        leftPanel.setOpaque(false);
-        
-        JLabel logoLabel = new JLabel("🍔");
-        logoLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-        
-        JLabel titleLabel = new JLabel("FastFood Pro");
-        titleLabel.setFont(UIConstants.FONT_TITLE);
-        titleLabel.setForeground(Color.WHITE);
-        
-        leftPanel.add(logoLabel);
-        leftPanel.add(titleLabel);
-        
-        headerPanel.add(leftPanel, BorderLayout.WEST);
-        
-        return headerPanel;
-    }
-    
-    // ============ CART OPERATIONS ============
-    
+ 
     @Override
     public void addToCart(Product product, int quantity) {
         // Check if product already in cart
@@ -112,7 +93,8 @@ public class CustomerMainFrame extends JFrame implements MenuListener {
         showNotification("✅ Đã thêm vào giỏ hàng!");
     }
     
-    public void removeFromCart(CartItem item) { cartItems.remove(item);
+    public void removeFromCart(CartItem item) {
+        cartItems.remove(item);
         cartPanel.refreshCart();
         showNotification("Đã xóa khỏi giỏ hàng");
     }
@@ -176,7 +158,7 @@ public class CustomerMainFrame extends JFrame implements MenuListener {
             return;
         }
         
-        CheckoutDialog dialog = new CheckoutDialog(this, cartItems, getCartGrandTotal());
+        CheckoutDialog dialog = new CheckoutDialog(mainFrame, cartItems, getCartGrandTotal());
         dialog.setVisible(true);
         
         // If checkout successful, clear cart
@@ -207,18 +189,5 @@ public class CustomerMainFrame extends JFrame implements MenuListener {
         dialog.setVisible(true);
     }
     
-    // ============ MAIN ============
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            CustomerMainFrame frame = new CustomerMainFrame();
-            frame.setVisible(true);
-        });
-    }
+
 }

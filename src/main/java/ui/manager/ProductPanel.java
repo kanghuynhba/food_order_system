@@ -2,6 +2,7 @@ package ui.manager;
 
 import entity.Product;
 import service.ProductService;
+import ui.components.ProductCard;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -150,108 +151,12 @@ public class ProductPanel extends JPanel {
         cardLoadTimer.start();
     }
     
-    // --- Phương thức createProductCard() (Không thay đổi) ---
     // Phương thức này gọi `loadImageAsync` đã được viết lại
     private JPanel createProductCard(Product product) {
-        JPanel card = new JPanel(new BorderLayout(0, 0));
-        card.setBackground(COLOR_BACKGROUND);
-        card.setPreferredSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
-        card.setBorder(BORDER_DEFAULT);
-        
-        card.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                card.setBorder(BORDER_HOVER);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                card.setBorder(BORDER_DEFAULT);
-            }
-        });
-        
-        JPanel imageContainer = new JPanel(new BorderLayout());
-        imageContainer.setPreferredSize(new Dimension(CARD_WIDTH, 180));
-        imageContainer.setBackground(new Color(250, 250, 250));
-        
-        JLabel imgLabel = new JLabel();
-        imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imgLabel.setVerticalAlignment(SwingConstants.CENTER);
-        imgLabel.setText("⏳");
-        imgLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
-        
-        imageContainer.add(imgLabel, BorderLayout.CENTER);
-        
-        // Gọi phương thức `loadImageAsync` đã cập nhật
-        loadImageAsync(product, imgLabel, imageContainer);
-        
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setBackground(COLOR_BACKGROUND);
-        infoPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
-        
-        JLabel nameLabel = new JLabel(product.getName());
-        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        nameLabel.setForeground(COLOR_TEXT_PRIMARY);
-        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        String descText = product.getDescription() != null ? product.getDescription() : product.getCategory();
-        if (descText.length() > 60) {
-            descText = descText.substring(0, 57) + "...";
-        }
-        
-        JLabel descLabel = new JLabel("<html><body style='width: 100%'>" + descText + "</body></html>");
-        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        descLabel.setForeground(COLOR_TEXT_SECONDARY);
-        descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        infoPanel.add(nameLabel);
-        infoPanel.add(Box.createVerticalStrut(6));
-        infoPanel.add(descLabel);
-        infoPanel.add(Box.createVerticalGlue()); 
-        
-        JPanel footerPanel = new JPanel(new BorderLayout());
-        footerPanel.setBackground(COLOR_BACKGROUND);
-        footerPanel.setBorder(new EmptyBorder(0, 12, 10, 12)); 
-        
-        JLabel priceLabel = new JLabel(String.format("%,dđ", (int) product.getPrice()));
-        priceLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        priceLabel.setForeground(COLOR_ACCENT);
-        
-        JButton addBtn = new JButton("+ Thêm");
-        addBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        addBtn.setForeground(Color.WHITE);
-        addBtn.setBackground(COLOR_ACCENT);
-        addBtn.setFocusPainted(false);
-        addBtn.setBorderPainted(false);
-        addBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        addBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                addBtn.setBackground(COLOR_ACCENT_HOVER);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                addBtn.setBackground(COLOR_ACCENT);
-            }
-        });
-        
-        addBtn.addActionListener(e -> {
-            System.out.println("Đang thêm vào giỏ hàng: " + product.getName());
-            JOptionPane.showMessageDialog(card, 
-                product.getName() + " đã được thêm vào giỏ hàng!", 
-                "Thành công", 
-                JOptionPane.INFORMATION_MESSAGE);
-        });
-        
-        footerPanel.add(priceLabel, BorderLayout.WEST);
-        footerPanel.add(addBtn, BorderLayout.EAST);
-        
-        card.add(imageContainer, BorderLayout.NORTH);
-        card.add(infoPanel, BorderLayout.CENTER);
-        card.add(footerPanel, BorderLayout.SOUTH);
-        
-        return card;
+        return new ProductCard(product, true);
     }
     
     /**
-     * [ĐÃ VIẾT LẠI]
      * Tải hình ảnh từ CLASSPATH (thư mục resources) thay vì từ URL web.
      */
     private void loadImageAsync(Product product, JLabel imgLabel, JPanel imageContainer) {

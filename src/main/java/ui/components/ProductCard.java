@@ -34,12 +34,24 @@ public class ProductCard extends RoundedPanel {
     private RoundedButton addBtn;
     private StatusBadge statusBadge;
     private NumberFormat currencyFormat;
+    private boolean disableBtn;
     
     // ============ CONSTRUCTOR ============
     
     public ProductCard(Product product) {
         super(12, true);
         this.product = product;
+        this.currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
+        
+        initComponents();
+        loadProductData();
+        enableHoverEffect(true);
+    }
+
+    public ProductCard(Product product, boolean disableBtn) {
+        super(12, true);
+        this.product = product;
+        this.disableBtn=disableBtn;
         this.currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
         
         initComponents();
@@ -96,7 +108,7 @@ public class ProductCard extends RoundedPanel {
         priceLabel.setForeground(ORANGE);
         
         // Add button
-        addBtn = new RoundedButton("🛒 Thêm", 8);
+        addBtn = new RoundedButton("Thêm", 8);
         addBtn.setBackground(ORANGE);
         addBtn.setPreferredSize(new Dimension(180, 38));
         addBtn.setMaximumSize(new Dimension(200, 38));
@@ -106,8 +118,10 @@ public class ProductCard extends RoundedPanel {
         infoPanel.add(descLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(priceLabel);
-        infoPanel.add(Box.createVerticalStrut(10));
-        infoPanel.add(addBtn);
+        if(!disableBtn) {
+            infoPanel.add(Box.createVerticalStrut(10));
+            infoPanel.add(addBtn);
+        }
         
         add(imgPanel, BorderLayout.NORTH);
         add(infoPanel, BorderLayout.CENTER);

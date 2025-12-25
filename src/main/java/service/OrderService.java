@@ -2,8 +2,6 @@ package service;
 
 import dao.OrderDAO;
 import dao.OrderItemDAO;
-import dao.CartDAO;
-import dao.CartItemDAO;
 import entity.Order;
 import entity.OrderItem;
 import entity.Cart;
@@ -29,8 +27,6 @@ public class OrderService {
     private static OrderService instance;
     private OrderDAO orderDAO;
     private OrderItemDAO orderItemDAO;
-    private CartDAO cartDAO;
-    private CartItemDAO cartItemDAO;
     private NotificationService notificationService;
     
     // ============ SINGLETON ============
@@ -38,8 +34,6 @@ public class OrderService {
     private OrderService() {
         this.orderDAO = new OrderDAO();
         this.orderItemDAO = new OrderItemDAO();
-        this.cartDAO = new CartDAO();
-        this.cartItemDAO = new CartItemDAO();
         this.notificationService = NotificationService.getInstance();
     }
     
@@ -51,73 +45,8 @@ public class OrderService {
     }
     
     // ============ ORDER CREATION ============
-    
     /**
-     * Tạo order từ cart
-     */
-    public Order createOrderFromCart(int customerId, String customerName, 
-                                     String phoneNumber, int payMethod) {
-        try {
-            // Get active cart
-            Cart cart = cartDAO.getActiveCart(customerId);
-            if (cart == null || cart.isEmpty()) {
-                System.err.println("❌ Cart is empty");
-                return null;
-            }
-            
-            // Get cart items
-            List<CartItem> cartItems = cartItemDAO.getByCartId(cart.getCartId());
-            if (cartItems.isEmpty()) {
-                System.err.println("❌ No items in cart");
-                return null;
-            }
-            
-            // Create order
-            Order order = new Order();
-            order.setCustomerName(customerName);
-            order.setPhoneNumber(phoneNumber);
-            order.setTotalAmount(cart.getTotalAmount());
-            order.setPayMethod(payMethod);
-            order.setPaymentStatus(0); // Unpaid
-            order.setStatus(0); // New
-            
-            boolean orderCreated = orderDAO.create(order);
-            if (!orderCreated) {
-                System.err.println("❌ Failed to create order");
-                return null;
-            }
-            
-            // Create order items
-            for (CartItem cartItem : cartItems) {
-                OrderItem orderItem = new OrderItem();
-                orderItem.setOrderId(order.getOrderId());
-                orderItem.setProductId(cartItem.getProductId());
-                orderItem.setProductName(cartItem.getProductName());
-                orderItem.setQuantity(cartItem.getQuantity());
-                orderItem.setUnitPrice(cartItem.getUnitPrice());
-                orderItem.setSubtotal(cartItem.getSubtotal());
-                
-                orderItemDAO.create(orderItem);
-            }
-            
-            // Mark cart as checked out
-            cartDAO.updateStatus(cart.getCartId(), 1);
-            
-            // Send notification
-            notificationService.notifyNewOrder(order.getOrderId());
-            
-            System.out.println("✅ Order created: #" + order.getOrderId());
-            return order;
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error creating order: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    /**
-     * Tạo order trực tiếp (không từ cart)
+     * Tạo order
      */
     public Order createOrder(String customerName, String phoneNumber, 
                             List<OrderItem> items, int payMethod) {
@@ -154,11 +83,11 @@ public class OrderService {
             
             notificationService.notifyNewOrder(order.getOrderId());
             
-            System.out.println("✅ Order created: #" + order.getOrderId());
+            System.out.println("Order created: #" + order.getOrderId());
             return order;
             
         } catch (Exception e) {
-            System.err.println("❌ Error creating order: " + e.getMessage());
+            System.err.println("Error creating order: " + e.getMessage());
             return null;
         }
     }
@@ -188,7 +117,7 @@ public class OrderService {
         try {
             return orderDAO.getAll();
         } catch (Exception e) {
-            System.err.println("❌ Error getting all orders: " + e.getMessage());
+            System.err.println("Error getting all orders: " + e.getMessage());
             return List.of();
         }
     }

@@ -80,7 +80,7 @@ public class PaymentDialog extends JDialog {
         
         // Total amount
         JPanel totalPanel = createInfoRow("Tổng tiền:", 
-            AppConfig.formatCurrency(order.getTotalAmount()), ORANGE);
+            AppConfig.formatCurrency(order.getTotalAmount()), ORANGE);    
         
         // Payment method
         JPanel methodPanel = new JPanel(new BorderLayout(0, 8));
